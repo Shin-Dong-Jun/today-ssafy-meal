@@ -105,7 +105,7 @@ export function buildWeekdayMealSlots(weekly: WeeklyMeal): DailyMeal[] {
       registeredMeal ?? {
         date,
         dayOfWeek,
-        menuItems: [],
+        mealOptions: [],
         uncertainTexts: [],
       }
     );

@@ -15,7 +15,14 @@ describe("샘플 주간 식단 데이터", () => {
     expect(weeklyMeal.meals[0]?.date).toBe(weeklyMeal.weekStart);
   });
 
-  it("실제 식단으로 오해되지 않도록 샘플로 표시한다", () => {
-    expect(weeklyMeal.isSample).toBe(true);
+  it("사진에서 판독한 실제 데이터로 표시한다", () => {
+    expect(weeklyMeal.isSample).toBe(false);
+    expect(weeklyMeal.sourceNotes.length).toBeGreaterThan(0);
+  });
+
+  it("각 요일에 사진의 두 메뉴 블록을 분리해 제공한다", () => {
+    expect(
+      weeklyMeal.meals.every((meal) => meal.mealOptions.length === 2),
+    ).toBe(true);
   });
 });

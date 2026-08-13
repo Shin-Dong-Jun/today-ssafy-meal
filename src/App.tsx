@@ -33,6 +33,16 @@ function App() {
       />
 
       <main id="main-content">
+        {weeklyMeal.sourceNotes.length > 0 && (
+          <aside className="source-note" aria-label="식단표 판독 안내">
+            <strong>식단표 판독 안내</strong>
+            <ul>
+              {weeklyMeal.sourceNotes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </aside>
+        )}
         <TodayMeal
           meal={todayMeal}
           isWeekend={isSeoulWeekend(currentDate)}

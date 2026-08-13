@@ -40,11 +40,12 @@ describe("서울 시간대 날짜 처리", () => {
       weekStart: "2026-08-17",
       updatedAt: "2026-08-17T09:00:00+09:00",
       isSample: true,
+      sourceNotes: [],
       meals: [
         {
           date: "2026-08-17",
           dayOfWeek: "MONDAY",
-          menuItems: ["쌀밥"],
+          mealOptions: [{ label: "메뉴 1", menuItems: ["쌀밥"] }],
           uncertainTexts: [],
         },
       ],
@@ -56,7 +57,7 @@ describe("서울 시간대 날짜 처리", () => {
     expect(slots[1]).toEqual({
       date: "2026-08-18",
       dayOfWeek: "TUESDAY",
-      menuItems: [],
+      mealOptions: [],
       uncertainTexts: [],
     });
     expect(slots[4]?.date).toBe("2026-08-21");
