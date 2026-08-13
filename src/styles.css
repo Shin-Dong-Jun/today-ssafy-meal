@@ -31,6 +31,9 @@
   --color-warning-line: #e4bd73;
   --color-focus: #174ea6;
 
+  --font-xs: 0.75rem;
+  --font-sm: 0.8125rem;
+
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -168,7 +171,7 @@ a {
   color: var(--color-primary-dark);
   background: var(--color-primary-soft);
   border-radius: 5px;
-  font-size: 0.66rem;
+  font-size: var(--font-xs);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -183,7 +186,7 @@ a {
   min-width: 0;
   margin: 0;
   color: var(--color-muted);
-  font-size: 0.65rem;
+  font-size: var(--font-xs);
   line-height: 1.4;
   text-align: right;
 }
@@ -206,6 +209,7 @@ a {
   border-left: 4px solid var(--color-primary);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 14px rgba(33, 45, 68, 0.04);
+  scroll-margin-top: var(--space-6);
 }
 
 .meal-data-notice--date-verified {
@@ -270,7 +274,7 @@ a {
   color: var(--color-primary-dark);
   background: var(--color-primary-soft);
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 800;
   line-height: 1.25;
   white-space: nowrap;
@@ -292,7 +296,7 @@ a {
   align-items: center;
   padding: 4px 9px;
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 800;
   line-height: 1.25;
   white-space: nowrap;
@@ -344,10 +348,14 @@ a {
   min-width: 0;
 }
 
+.meal-data-meta > div:only-child {
+  grid-column: 1 / -1;
+}
+
 .meal-data-meta dt {
   margin: 0 0 3px;
   color: var(--color-muted);
-  font-size: 0.67rem;
+  font-size: var(--font-xs);
   font-weight: 650;
   line-height: 1.4;
 }
@@ -356,7 +364,7 @@ a {
   min-width: 0;
   margin: 0;
   color: var(--color-ink-soft);
-  font-size: 0.76rem;
+  font-size: var(--font-sm);
   font-weight: 650;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -382,7 +390,7 @@ a {
   color: var(--color-ink-soft);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.76rem;
+  font-size: var(--font-sm);
   font-weight: 700;
   line-height: 1.45;
   overflow-wrap: anywhere;
@@ -401,7 +409,7 @@ a {
   min-width: 0;
   padding-left: 2px;
   color: var(--color-muted);
-  font-size: 0.74rem;
+  font-size: var(--font-xs);
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
@@ -493,7 +501,7 @@ h2 {
   color: var(--color-muted);
   background: var(--color-surface-subtle);
   border-radius: var(--radius-sm);
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   line-height: 1.35;
   text-align: right;
@@ -1316,7 +1324,7 @@ h2 {
   flex: 0 0 auto;
   margin: 0 0 2px;
   color: var(--color-muted);
-  font-size: 0.72rem;
+  font-size: var(--font-xs);
   font-weight: 600;
 }
 
@@ -1360,7 +1368,7 @@ h2 {
 
 .meal-date-short {
   color: var(--color-muted);
-  font-size: 0.68rem;
+  font-size: var(--font-xs);
   font-weight: 500;
   line-height: 1.4;
 }
@@ -1374,7 +1382,7 @@ h2 {
   color: #ffffff;
   background: var(--color-primary);
   border-radius: 4px;
-  font-size: 0.61rem;
+  font-size: var(--font-xs);
   font-weight: 700;
 }
 
@@ -1386,7 +1394,7 @@ h2 {
 .weekly-menu-group h4 {
   margin-bottom: 5px;
   color: var(--color-primary-dark);
-  font-size: 0.67rem;
+  font-size: var(--font-xs);
   text-align: left;
 }
 
@@ -1401,7 +1409,7 @@ h2 {
   max-width: 100%;
   padding-left: 10px;
   color: var(--color-ink-soft);
-  font-size: 0.81rem;
+  font-size: 0.875rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -1426,7 +1434,10 @@ h2 {
 
 a:focus-visible,
 button:focus-visible,
-summary:focus-visible {
+summary:focus-visible,
+.meal-data-notice:focus-visible,
+.today-section:focus-visible,
+.weekly-section:focus-visible {
   border-radius: var(--radius-sm);
   outline: 3px solid var(--color-focus);
   outline-offset: 3px;
@@ -1434,6 +1445,40 @@ summary:focus-visible {
 }
 
 @media (max-width: 767px) {
+  .site-header-inner {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 64px;
+    padding-block: var(--space-3);
+  }
+
+  .update-time {
+    display: none;
+  }
+
+  .meal-data-notice {
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .meal-data-notice-heading {
+    gap: 6px;
+  }
+
+  .meal-data-meta {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .meal-data-source-notes summary {
+    padding-block: 10px;
+  }
+
+  .main-container--menu-first .weekly-section {
+    margin-top: var(--space-3);
+    padding-top: var(--space-5);
+  }
+
   .weekly-menu-list {
     display: flex;
     flex-wrap: wrap;
@@ -1503,8 +1548,8 @@ summary:focus-visible {
   justify-content: center;
   gap: 6px;
   color: var(--color-muted);
-  font-size: 0.67rem;
-  font-weight: 600;
+  font-size: var(--font-xs);
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -1610,7 +1655,7 @@ summary:focus-visible {
   .campus-badge {
     padding: 6px 10px;
     border-radius: 999px;
-    font-size: 0.72rem;
+    font-size: var(--font-xs);
   }
 
   .desktop-primary-nav {
@@ -1633,7 +1678,7 @@ summary:focus-visible {
   .update-time {
     grid-column: auto;
     max-width: 310px;
-    font-size: 0.68rem;
+    font-size: var(--font-xs);
   }
 
   .meal-data-notice {
@@ -1655,6 +1700,14 @@ summary:focus-visible {
 
   .main-container {
     padding: var(--space-6) var(--space-5) var(--space-12);
+  }
+
+  .main-container--menu-first {
+    padding-top: var(--space-4);
+  }
+
+  .main-container--menu-first .weekly-section {
+    margin-top: 0;
   }
 
   .today-section {

@@ -23,8 +23,8 @@ const STATUS_LABELS: Record<MealDataStatus, string> = {
 const STATUS_MESSAGES: Record<MealDataStatus, string> = {
   DATE_VERIFIED: "식단표의 실제 날짜를 확인했어요.",
   DATE_UNVERIFIED:
-    "확인 가능한 메뉴만 옮겼지만 날짜는 확인되지 않았어요.",
-  SAMPLE: "실제 SSAFY 식단이 아닌 샘플 데이터예요.",
+    "날짜는 확인하지 못했어요. 사진에서 읽은 메뉴만 순서대로 보여드려요.",
+  SAMPLE: "실제 SSAFY 식단이 아닌 화면 확인용 예시예요.",
 };
 
 const FRESHNESS_LABELS: Record<Exclude<MealWeekStatus, "CURRENT">, string> = {
@@ -55,8 +55,10 @@ export function MealDataNotice({
 
   return (
     <aside
+      id="meal-data-notice"
       className={`meal-data-notice meal-data-notice--${statusClass}${freshnessClass ? ` meal-data-notice--${freshnessClass}` : ""}`}
       aria-labelledby={titleId}
+      tabIndex={-1}
     >
       <div className="meal-data-notice-heading">
         <div className="meal-data-statuses">
@@ -82,14 +84,14 @@ export function MealDataNotice({
       </div>
 
       <dl className="meal-data-meta">
+        {status !== "DATE_UNVERIFIED" && (
+          <div>
+            <dt>{status === "SAMPLE" ? "예시 기간" : "표시 기간"}</dt>
+            <dd>{mealWeekRange}</dd>
+          </div>
+        )}
         <div>
-          <dt>
-            {status === "DATE_UNVERIFIED" ? "임시 표시 기간" : "표시 기간"}
-          </dt>
-          <dd>{mealWeekRange}</dd>
-        </div>
-        <div>
-          <dt>데이터 반영</dt>
+          <dt>{status === "SAMPLE" ? "예시 반영" : "데이터 반영"}</dt>
           <dd>
             <time dateTime={weeklyMeal.updatedAt}>
               {formatUpdatedAtCompact(weeklyMeal.updatedAt, currentDate)}
@@ -100,7 +102,14 @@ export function MealDataNotice({
 
       {weeklyMeal.sourceNotes.length > 0 && (
         <details className="meal-data-source-notes">
-          <summary>판독 및 출처 안내 {weeklyMeal.sourceNotes.length}개</summary>
+          <summary>
+            {status === "DATE_UNVERIFIED"
+              ? "날짜·판독 근거"
+              : status === "SAMPLE"
+                ? "예시 및 출처 안내"
+                : "판독 및 출처 안내"}{" "}
+            {weeklyMeal.sourceNotes.length}개
+          </summary>
           <ul>
             {weeklyMeal.sourceNotes.map((note, index) => (
               <li key={`${index}-${note}`}>{note}</li>

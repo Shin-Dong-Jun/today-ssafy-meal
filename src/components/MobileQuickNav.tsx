@@ -1,39 +1,51 @@
 import { useEffect, useState } from "react";
 
-const SECTION_IDS = ["today-section", "weekly-section"] as const;
+export type MobileQuickNavTargetId =
+  | "meal-data-notice"
+  | "today-section"
+  | "weekly-section";
 
-type SectionId = (typeof SECTION_IDS)[number];
+export interface MobileQuickNavItem {
+  targetId: MobileQuickNavTargetId;
+  label: string;
+}
 
 interface MobileQuickNavProps {
-  todayLabel?: string;
-  weeklyLabel?: string;
+  items: readonly MobileQuickNavItem[];
 }
 
-function getInitialSection(): SectionId {
-  if (
-    typeof window !== "undefined" &&
-    window.location.hash === "#weekly-section"
-  ) {
-    return "weekly-section";
+function getInitialSection(
+  items: readonly MobileQuickNavItem[],
+): MobileQuickNavTargetId | null {
+  if (typeof window !== "undefined") {
+    const hashTarget = window.location.hash.slice(1);
+    const matchingItem = items.find((item) => item.targetId === hashTarget);
+
+    if (matchingItem) {
+      return matchingItem.targetId;
+    }
   }
 
-  return "today-section";
+  return items[0]?.targetId ?? null;
 }
 
-export function MobileQuickNav({
-  todayLabel = "오늘",
-  weeklyLabel = "이번 주",
-}: MobileQuickNavProps) {
+export function MobileQuickNav({ items }: MobileQuickNavProps) {
   const [activeSection, setActiveSection] =
-    useState<SectionId>(getInitialSection);
+    useState<MobileQuickNavTargetId | null>(() => getInitialSection(items));
 
   useEffect(() => {
+    setActiveSection((currentSection) =>
+      items.some((item) => item.targetId === currentSection)
+        ? currentSection
+        : getInitialSection(items),
+    );
+
     if (!("IntersectionObserver" in window)) {
       return;
     }
 
-    const sections = SECTION_IDS.map((sectionId) =>
-      document.getElementById(sectionId),
+    const sections = items.map(({ targetId }) =>
+      document.getElementById(targetId),
     ).filter((section): section is HTMLElement => section !== null);
 
     if (sections.length === 0) {
@@ -50,11 +62,8 @@ export function MobileQuickNav({
               Math.abs(second.boundingClientRect.top),
           )[0];
 
-        if (
-          visibleSection &&
-          SECTION_IDS.includes(visibleSection.target.id as SectionId)
-        ) {
-          setActiveSection(visibleSection.target.id as SectionId);
+        if (visibleSection) {
+          setActiveSection(visibleSection.target.id as MobileQuickNavTargetId);
         }
       },
       {
@@ -66,26 +75,32 @@ export function MobileQuickNav({
     sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
-  }, []);
+  }, [items]);
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  const handleNavigation = (targetId: MobileQuickNavTargetId) => {
+    setActiveSection(targetId);
+    window.requestAnimationFrame(() => {
+      document.getElementById(targetId)?.focus({ preventScroll: true });
+    });
+  };
 
   return (
     <nav className="mobile-quick-nav" aria-label="페이지 바로가기">
-      <a
-        href="#today-section"
-        aria-current={activeSection === "today-section" ? "location" : undefined}
-        onClick={() => setActiveSection("today-section")}
-      >
-        <span aria-hidden="true" />
-        {todayLabel}
-      </a>
-      <a
-        href="#weekly-section"
-        aria-current={activeSection === "weekly-section" ? "location" : undefined}
-        onClick={() => setActiveSection("weekly-section")}
-      >
-        <span aria-hidden="true" />
-        {weeklyLabel}
-      </a>
+      {items.map(({ targetId, label }) => (
+        <a
+          href={`#${targetId}`}
+          aria-current={activeSection === targetId ? "location" : undefined}
+          onClick={() => handleNavigation(targetId)}
+          key={targetId}
+        >
+          <span aria-hidden="true" />
+          {label}
+        </a>
+      ))}
     </nav>
   );
 }

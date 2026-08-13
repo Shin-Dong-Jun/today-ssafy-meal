@@ -91,6 +91,7 @@ export function TodayMeal({
       id="today-section"
       className="today-section"
       aria-labelledby="today-heading"
+      tabIndex={-1}
     >
       <div className="section-heading-row">
         <div>
