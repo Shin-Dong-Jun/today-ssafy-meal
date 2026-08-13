@@ -66,6 +66,10 @@ select {
   font: inherit;
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 a {
   color: inherit;
 }
@@ -98,6 +102,18 @@ a {
   outline: 3px solid rgba(37, 99, 235, 0.35);
   outline-offset: 2px;
   transform: translateY(0);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .site-header {
@@ -171,7 +187,8 @@ a {
   font-weight: 600;
 }
 
-.sample-banner {
+.sample-banner,
+.week-status-banner {
   display: flex;
   width: min(calc(100% - 40px), 1240px);
   align-items: flex-start;
@@ -186,7 +203,20 @@ a {
   line-height: 1.5;
 }
 
-.sample-banner-mark {
+.week-status-banner {
+  color: #7c4a03;
+  background: #fff7e3;
+  border-left-color: #e49a19;
+}
+
+.week-status-banner--future {
+  color: #254a96;
+  background: var(--color-primary-soft);
+  border-left-color: var(--color-primary);
+}
+
+.sample-banner-mark,
+.week-status-mark {
   flex: 0 0 auto;
   width: 7px;
   height: 7px;
@@ -195,16 +225,35 @@ a {
   border-radius: 50%;
 }
 
+.week-status-mark {
+  background: #e49a19;
+}
+
+.week-status-banner--future .week-status-mark {
+  background: var(--color-primary);
+}
+
 .sample-banner strong,
-.sample-banner div > span {
+.sample-banner div > span,
+.week-status-banner strong,
+.week-status-banner div > span {
   display: block;
 }
 
-.sample-banner strong {
+.sample-banner strong,
+.week-status-banner strong {
   font-weight: 700;
 }
 
 .sample-banner div > span {
+  color: #536786;
+}
+
+.week-status-banner div > span {
+  color: #7d6541;
+}
+
+.week-status-banner--future div > span {
   color: #536786;
 }
 
@@ -294,6 +343,13 @@ h2 {
   min-width: 0;
 }
 
+.weekday-chip a {
+  display: block;
+  color: inherit;
+  border-radius: 14px;
+  text-decoration: none;
+}
+
 .weekday-chip time {
   display: flex;
   min-height: 68px;
@@ -358,7 +414,15 @@ h2 {
   margin-bottom: var(--space-3);
 }
 
-.menu-group-heading > span {
+.menu-group-labels {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.menu-group-labels > span {
   flex: 0 0 auto;
   padding: 5px 9px;
   color: var(--color-primary);
@@ -367,6 +431,18 @@ h2 {
   font-size: 0.77rem;
   font-weight: 700;
   line-height: 1.2;
+}
+
+.menu-group-labels > strong {
+  color: var(--color-primary-dark);
+  font-size: 0.7rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.today-menu-group--selected .menu-group-labels > span {
+  color: #ffffff;
+  background: var(--color-primary);
 }
 
 .today-menu-group h3,
@@ -426,6 +502,68 @@ h2 {
   height: 16px;
   background: var(--color-primary);
   border-radius: 999px;
+}
+
+.meal-picker {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding: var(--space-5);
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+.meal-picker--picked {
+  background: var(--color-primary-soft);
+  border-color: #abc4fa;
+}
+
+.meal-picker-copy {
+  min-width: 0;
+}
+
+.meal-picker-kicker {
+  margin: 0 0 var(--space-1);
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.meal-picker h3 {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.meal-picker-copy > p:last-of-type {
+  margin: 5px 0 0;
+  color: var(--color-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.meal-picker button {
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px var(--space-4);
+  color: #ffffff;
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.meal-picker button:active {
+  background: var(--color-primary-dark);
 }
 
 .protein-summary {
@@ -643,6 +781,7 @@ h2 {
   gap: var(--space-3);
   padding: var(--space-5) 0;
   border-bottom: 1px solid var(--color-line);
+  scroll-margin-top: var(--space-4);
 }
 
 .meal-card--today {
@@ -711,6 +850,7 @@ h2 {
 .weekly-menu-list li {
   position: relative;
   min-width: 0;
+  max-width: 100%;
   padding-left: 10px;
   color: var(--color-ink-soft);
   font-size: 0.81rem;
@@ -783,10 +923,34 @@ h2 {
 }
 
 summary:focus-visible,
-a:focus-visible {
+a:focus-visible,
+button:focus-visible {
   border-radius: var(--radius-sm);
   outline: 3px solid rgba(37, 99, 235, 0.3);
   outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .weekly-menu-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 0;
+  }
+
+  .weekly-menu-list li {
+    display: inline-flex;
+    padding-left: 0;
+  }
+
+  .weekly-menu-list li::before {
+    content: none;
+  }
+
+  .weekly-menu-list li:not(:last-child)::after {
+    margin: 0 5px;
+    color: #aab4c2;
+    content: "·";
+  }
 }
 
 .site-footer {
@@ -859,8 +1023,17 @@ a:focus-visible {
 @media (hover: hover) {
   .desktop-primary-nav a:hover,
   .mobile-quick-nav a:hover,
+  .weekday-chip a:hover,
   .uncertainty-note summary:hover {
     color: var(--color-primary-dark);
+  }
+
+  .weekday-chip a:hover time {
+    border-color: #9db9f5;
+  }
+
+  .meal-picker button:hover {
+    background: var(--color-primary-dark);
   }
 }
 
@@ -936,7 +1109,8 @@ a:focus-visible {
     font-size: 0.68rem;
   }
 
-  .sample-banner {
+  .sample-banner,
+  .week-status-banner {
     margin-top: var(--space-5);
   }
 
@@ -1037,6 +1211,23 @@ a:focus-visible {
     min-height: 38px;
     padding: 6px 0;
     font-size: 0.92rem;
+  }
+
+  .today-menu-group--selected {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  }
+
+  .meal-picker {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-6);
+    margin-top: var(--space-4);
+    margin-bottom: 0;
+  }
+
+  .meal-picker button {
+    min-width: 136px;
   }
 
   .protein-summary {

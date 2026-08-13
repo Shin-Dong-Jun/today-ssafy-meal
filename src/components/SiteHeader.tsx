@@ -1,10 +1,11 @@
-import { formatUpdatedAt } from "../utils/date";
+import { formatUpdatedAtCompact } from "../utils/date";
 
 interface SiteHeaderProps {
+  currentDate: Date;
   updatedAt: string;
 }
 
-export function SiteHeader({ updatedAt }: SiteHeaderProps) {
+export function SiteHeader({ currentDate, updatedAt }: SiteHeaderProps) {
   return (
     <header className="site-header">
       <div className="site-header-inner">
@@ -21,7 +22,9 @@ export function SiteHeader({ updatedAt }: SiteHeaderProps) {
 
         <p className="update-time">
           <span>마지막 업데이트</span>
-          <time dateTime={updatedAt}>{formatUpdatedAt(updatedAt)}</time>
+          <time dateTime={updatedAt}>
+            {formatUpdatedAtCompact(updatedAt, currentDate)}
+          </time>
         </p>
       </div>
     </header>

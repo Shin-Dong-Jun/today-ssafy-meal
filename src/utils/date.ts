@@ -30,6 +30,18 @@ const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "short",
 });
 
+const WEEKDAY_OFFSETS: Record<string, number> = {
+  Mon: 0,
+  Tue: 1,
+  Wed: 2,
+  Thu: 3,
+  Fri: 4,
+  Sat: 5,
+  Sun: 6,
+};
+
+export type MealWeekStatus = "CURRENT" | "PAST" | "FUTURE";
+
 export function getSeoulDateKey(date: Date = new Date()): string {
   const parts = dateKeyFormatter.formatToParts(date);
   const year = parts.find((part) => part.type === "year")?.value;
@@ -46,6 +58,32 @@ export function getSeoulDateKey(date: Date = new Date()): string {
 export function isSeoulWeekend(date: Date = new Date()): boolean {
   const weekday = weekdayFormatter.format(date);
   return weekday === "Sat" || weekday === "Sun";
+}
+
+export function getSeoulWeekStartKey(date: Date = new Date()): string {
+  const [year, month, day] = getSeoulDateKey(date).split("-").map(Number);
+  const weekdayOffset = WEEKDAY_OFFSETS[weekdayFormatter.format(date)];
+
+  if (!year || !month || !day || weekdayOffset === undefined) {
+    throw new Error("대한민국 기준 주 시작일을 계산할 수 없습니다.");
+  }
+
+  return new Date(Date.UTC(year, month - 1, day - weekdayOffset))
+    .toISOString()
+    .slice(0, 10);
+}
+
+export function getMealWeekStatus(
+  weekStart: string,
+  date: Date = new Date(),
+): MealWeekStatus {
+  const currentWeekStart = getSeoulWeekStartKey(date);
+
+  if (weekStart === currentWeekStart) {
+    return "CURRENT";
+  }
+
+  return weekStart < currentWeekStart ? "PAST" : "FUTURE";
 }
 
 export function formatCurrentDate(date: Date = new Date()): string {
@@ -82,6 +120,54 @@ export function formatUpdatedAt(updatedAt: string): string {
     hour: "numeric",
     minute: "2-digit",
   }).format(parsed);
+}
+
+export function formatUpdatedAtCompact(
+  updatedAt: string,
+  currentDate: Date = new Date(),
+): string {
+  const parsed = new Date(updatedAt);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return updatedAt;
+  }
+
+  const time = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: SEOUL_TIME_ZONE,
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(parsed);
+
+  if (getSeoulDateKey(parsed) === getSeoulDateKey(currentDate)) {
+    return `오늘 ${time} 업데이트`;
+  }
+
+  const date = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: SEOUL_TIME_ZONE,
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(parsed);
+
+  return `${date} ${time} 업데이트`;
+}
+
+export function formatMealWeekRange(weekStart: string): string {
+  const [year, month, day] = weekStart.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return weekStart;
+  }
+
+  const end = new Date(Date.UTC(year, month - 1, day + 4));
+  const endMonth = end.getUTCMonth() + 1;
+  const endDay = end.getUTCDate();
+
+  if (month === endMonth) {
+    return `${month}월 ${day}일~${endDay}일`;
+  }
+
+  return `${month}월 ${day}일~${endMonth}월 ${endDay}일`;
 }
 
 /**
