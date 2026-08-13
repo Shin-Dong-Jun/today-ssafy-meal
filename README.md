@@ -21,10 +21,12 @@ SSAFY 대전캠퍼스 교육생이 휴대전화에서 오늘 점심과 현재 �
 
 ## 로컬 실행
 
-Node.js 20.19 이상 또는 22.12 이상을 권장합니다.
+Node.js 24 LTS를 사용합니다. `nvm`을 사용한다면 저장소의 `.nvmrc`로
+버전을 맞출 수 있습니다.
 
 ```bash
-npm install
+nvm use
+npm ci
 npm run dev
 ```
 
@@ -44,9 +46,14 @@ npm run typecheck
 
 # 프로덕션 빌드
 npm run build
+
+# 반응형 브라우저 회귀 테스트 (최초 1회 Chromium 설치 필요)
+npx playwright install chromium
+npm run test:e2e
 ```
 
 빌드 결과물은 `dist/`에 생성됩니다.
+Pull Request와 `main` Push에서는 GitHub Actions가 위 검사를 자동 실행합니다.
 
 ## 매주 식단 데이터 갱신
 
