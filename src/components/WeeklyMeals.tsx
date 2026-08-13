@@ -56,7 +56,7 @@ export function WeeklyMeals({
             key={meal.date}
             meal={meal}
             mealIndex={mealIndex}
-            isDateVerified={isDateVerified}
+            dataStatus={dataStatus}
             isToday={isDateVerified && meal.date === todayKey}
           />
         ))}
