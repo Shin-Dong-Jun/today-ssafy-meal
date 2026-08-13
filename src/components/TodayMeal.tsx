@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { getDailyMenuItems, type DailyMeal } from "../data/meals";
 import { assessProtein } from "../utils/assessProtein";
 import {
@@ -5,6 +7,7 @@ import {
   formatCurrentDate,
   formatMealDate,
 } from "../utils/date";
+import { pickMealOptionIndex } from "../utils/pickMealOption";
 
 interface TodayMealProps {
   currentDate: Date;
@@ -14,6 +17,11 @@ interface TodayMealProps {
   isWeekend: boolean;
 }
 
+interface MealPick {
+  mealDate: string;
+  optionIndex: number;
+}
+
 export function TodayMeal({
   currentDate,
   todayKey,
@@ -21,6 +29,7 @@ export function TodayMeal({
   weekMeals,
   isWeekend,
 }: TodayMealProps) {
+  const [mealPick, setMealPick] = useState<MealPick | null>(null);
   const menuItems = meal ? getDailyMenuItems(meal) : [];
   const assessment = assessProtein(
     menuItems,
@@ -31,6 +40,40 @@ export function TodayMeal({
       ? assessment.matchedMenuItems
       : assessment.possibleMenuItems;
   const matchedProteinItems = new Set(assessment.matchedMenuItems);
+  const selectableOptions =
+    meal?.mealOptions
+      .map((option, optionIndex) => ({ option, optionIndex }))
+      .filter(({ option }) => option.menuItems.length > 0) ?? [];
+  const selectedOptionIndex =
+    mealPick && mealPick.mealDate === meal?.date
+      ? mealPick.optionIndex
+      : null;
+  const selectedOption =
+    selectedOptionIndex === null
+      ? undefined
+      : selectableOptions[selectedOptionIndex];
+
+  const pickOption = () => {
+    if (!meal) {
+      return;
+    }
+
+    setMealPick((previousPick) => {
+      const previousIndex =
+        previousPick?.mealDate === meal.date
+          ? previousPick.optionIndex
+          : null;
+      const optionIndex = pickMealOptionIndex(
+        selectableOptions.length,
+        Math.random(),
+        previousIndex,
+      );
+
+      return optionIndex === null
+        ? null
+        : { mealDate: meal.date, optionIndex };
+    });
+  };
 
   return (
     <section className="today-section" aria-labelledby="today-heading">
@@ -48,8 +91,9 @@ export function TodayMeal({
 
       <ol className="weekday-strip" aria-label="이번 주 평일 날짜">
         {weekMeals.map((weekdayMeal) => {
-          const [, , day] = weekdayMeal.date.split("-").map(Number);
+          const [, month, day] = weekdayMeal.date.split("-").map(Number);
           const isToday = weekdayMeal.date === todayKey;
+          const dayLabel = DAY_OF_WEEK_LABELS[weekdayMeal.dayOfWeek];
 
           return (
             <li
@@ -57,13 +101,18 @@ export function TodayMeal({
                 isToday ? "weekday-chip weekday-chip--today" : "weekday-chip"
               }
               key={weekdayMeal.date}
-              aria-current={isToday ? "date" : undefined}
             >
-              <time dateTime={weekdayMeal.date}>
-                <span>{DAY_OF_WEEK_LABELS[weekdayMeal.dayOfWeek].slice(0, 1)}</span>
-                <strong>{day}</strong>
-                {isToday && <i aria-hidden="true" />}
-              </time>
+              <a
+                href={`#meal-${weekdayMeal.date}`}
+                aria-current={isToday ? "date" : undefined}
+                aria-label={`${month}월 ${day}일 ${dayLabel} 식단으로 이동`}
+              >
+                <time dateTime={weekdayMeal.date}>
+                  <span>{dayLabel.slice(0, 1)}</span>
+                  <strong>{day}</strong>
+                  {isToday && <i aria-hidden="true" />}
+                </time>
+              </a>
             </li>
           );
         })}
@@ -89,35 +138,80 @@ export function TodayMeal({
         ) : (
           <>
             <div className="today-menu-groups">
-              {meal.mealOptions.map((option, optionIndex) => (
-                <section className="today-menu-group" key={option.label}>
-                  <header className="menu-group-heading">
-                    <span>메뉴 {String.fromCharCode(65 + optionIndex)}</span>
-                    <h3>{option.label}</h3>
-                  </header>
-                  <ul className="today-menu-list">
-                    {option.menuItems.map((item, itemIndex) => {
-                      const isProteinItem = matchedProteinItems.has(item);
+              {meal.mealOptions.map((option, optionIndex) => {
+                const selectableOptionIndex = selectableOptions.findIndex(
+                  (selectableOption) => selectableOption.option === option,
+                );
+                const isSelected =
+                  selectableOptionIndex === selectedOptionIndex;
 
-                      return (
-                        <li
-                          className={
-                            isProteinItem ? "is-protein-item" : undefined
-                          }
-                          key={`${option.label}-${itemIndex}`}
-                        >
-                          <span
-                            className="menu-item-marker"
-                            aria-hidden="true"
-                          />
-                          <span>{item}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              ))}
+                return (
+                  <section
+                    className={`today-menu-group${isSelected ? " today-menu-group--selected" : ""}`}
+                    key={option.label}
+                  >
+                    <header className="menu-group-heading">
+                      <div className="menu-group-labels">
+                        <span>
+                          메뉴 {String.fromCharCode(65 + optionIndex)}
+                        </span>
+                        {isSelected && <strong>오늘의 선택</strong>}
+                      </div>
+                      <h3>{option.label}</h3>
+                    </header>
+                    <ul className="today-menu-list">
+                      {option.menuItems.map((item, itemIndex) => {
+                        const isProteinItem = matchedProteinItems.has(item);
+
+                        return (
+                          <li
+                            className={
+                              isProteinItem ? "is-protein-item" : undefined
+                            }
+                            key={`${option.label}-${itemIndex}`}
+                          >
+                            <span
+                              className="menu-item-marker"
+                              aria-hidden="true"
+                            />
+                            <span>{item}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                );
+              })}
             </div>
+
+            {selectableOptions.length >= 2 && (
+              <section
+                className={`meal-picker${selectedOption ? " meal-picker--picked" : ""}`}
+                aria-labelledby="meal-picker-heading"
+              >
+                <div className="meal-picker-copy">
+                  <p className="meal-picker-kicker">결정이 어렵다면</p>
+                  <h3 id="meal-picker-heading">
+                    {selectedOption
+                      ? `오늘은 메뉴 ${String.fromCharCode(65 + selectedOption.optionIndex)}로 가볼까요?`
+                      : "두 메뉴 중 하나를 가볍게 골라드릴게요."}
+                  </h3>
+                  <p>메뉴 정보와 무관한 무작위 선택이에요.</p>
+                  <span
+                    className="visually-hidden"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {selectedOption
+                      ? `메뉴 ${String.fromCharCode(65 + selectedOption.optionIndex)}가 선택되었습니다.`
+                      : ""}
+                  </span>
+                </div>
+                <button type="button" onClick={pickOption}>
+                  {selectedOption ? "다시 고르기" : "오늘 메뉴 골라줘"}
+                </button>
+              </section>
+            )}
 
             <div className="protein-summary">
               <div className="protein-heading">

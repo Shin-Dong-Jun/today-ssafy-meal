@@ -14,6 +14,7 @@ export function MealCard({ meal, isToday }: MealCardProps) {
   return (
     <article
       className={`meal-card${isToday ? " meal-card--today" : ""}`}
+      id={`meal-${meal.date}`}
       aria-current={isToday ? "date" : undefined}
     >
       <header className="meal-card-header">

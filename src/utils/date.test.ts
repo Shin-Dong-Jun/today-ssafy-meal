@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 import type { WeeklyMeal } from "../data/meals";
 import {
   buildWeekdayMealSlots,
+  formatMealWeekRange,
+  formatUpdatedAtCompact,
+  getMealWeekStatus,
   formatMealDate,
   getSeoulDateKey,
+  getSeoulWeekStartKey,
   isSeoulWeekend,
 } from "./date";
 
@@ -29,9 +33,41 @@ describe("서울 시간대 날짜 처리", () => {
     expect(isSeoulWeekend(new Date("2026-08-17T00:00:00+09:00"))).toBe(false);
   });
 
+  it("서울 날짜의 월요일을 현재 주 시작일로 계산한다", () => {
+    expect(getSeoulWeekStartKey(new Date("2026-08-13T12:00:00+09:00"))).toBe(
+      "2026-08-10",
+    );
+    expect(getSeoulWeekStartKey(new Date("2026-08-16T23:59:59+09:00"))).toBe(
+      "2026-08-10",
+    );
+    expect(getSeoulWeekStartKey(new Date("2026-08-17T00:00:00+09:00"))).toBe(
+      "2026-08-17",
+    );
+  });
+
+  it("등록된 식단이 현재 주보다 이전인지 이후인지 판별한다", () => {
+    const currentDate = new Date("2026-08-13T12:00:00+09:00");
+
+    expect(getMealWeekStatus("2026-08-10", currentDate)).toBe("CURRENT");
+    expect(getMealWeekStatus("2026-08-03", currentDate)).toBe("PAST");
+    expect(getMealWeekStatus("2026-08-17", currentDate)).toBe("FUTURE");
+  });
+
   it("식단 날짜를 한국어로 표시한다", () => {
     expect(formatMealDate("2026-08-17", "MONDAY")).toBe(
       "8월 17일 월요일",
+    );
+  });
+
+  it("업데이트 시각과 식단 주간 범위를 간결하게 표시한다", () => {
+    expect(
+      formatUpdatedAtCompact(
+        "2026-08-13T11:57:00+09:00",
+        new Date("2026-08-13T18:00:00+09:00"),
+      ),
+    ).toBe("오늘 오전 11:57 업데이트");
+    expect(formatMealWeekRange("2026-08-31")).toBe(
+      "8월 31일~9월 4일",
     );
   });
 
