@@ -2,18 +2,21 @@ import type {
   DailyMeal,
   MealDataStatus,
 } from "../data/meals";
+import type { MealWeekStatus } from "../utils/date";
 import { MealCard } from "./MealCard";
 
 interface WeeklyMealsProps {
   meals: DailyMeal[];
   todayKey: string;
   dataStatus: MealDataStatus;
+  weekStatus: MealWeekStatus;
 }
 
 export function WeeklyMeals({
   meals,
   todayKey,
   dataStatus,
+  weekStatus,
 }: WeeklyMealsProps) {
   const isDateVerified = dataStatus === "DATE_VERIFIED";
 
@@ -27,7 +30,11 @@ export function WeeklyMeals({
         <div>
           <h2 id="weekly-heading">
             {isDateVerified
-              ? "이번 주 식단"
+              ? weekStatus === "PAST"
+                ? "지난 식단"
+                : weekStatus === "FUTURE"
+                  ? "예정 식단"
+                  : "이번 주 식단"
               : dataStatus === "SAMPLE"
                 ? "샘플 식단"
                 : "사진 판독 식단"}

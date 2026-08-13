@@ -25,6 +25,10 @@
   --color-possible: #7a5a24;
   --color-possible-soft: #f8efd9;
   --color-neutral-soft: #eceff2;
+  --color-warning: #b87108;
+  --color-warning-ink: #754604;
+  --color-warning-soft: #fffaf0;
+  --color-warning-line: #e4bd73;
   --color-focus: #174ea6;
 
   --space-1: 4px;
@@ -189,76 +193,6 @@ a {
   font-weight: 600;
 }
 
-.sample-banner,
-.week-status-banner {
-  display: flex;
-  width: min(calc(100% - 40px), 1240px);
-  align-items: flex-start;
-  gap: var(--space-3);
-  margin: var(--space-4) auto 0;
-  padding: 12px var(--space-4);
-  color: #254a96;
-  background: var(--color-primary-soft);
-  border-left: 3px solid var(--color-primary);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  font-size: 0.78rem;
-  line-height: 1.5;
-}
-
-.week-status-banner {
-  color: #7c4a03;
-  background: #fff7e3;
-  border-left-color: #e49a19;
-}
-
-.week-status-banner--future {
-  color: #254a96;
-  background: var(--color-primary-soft);
-  border-left-color: var(--color-primary);
-}
-
-.sample-banner-mark,
-.week-status-mark {
-  flex: 0 0 auto;
-  width: 7px;
-  height: 7px;
-  margin-top: 6px;
-  background: var(--color-primary);
-  border-radius: 50%;
-}
-
-.week-status-mark {
-  background: #e49a19;
-}
-
-.week-status-banner--future .week-status-mark {
-  background: var(--color-primary);
-}
-
-.sample-banner strong,
-.sample-banner div > span,
-.week-status-banner strong,
-.week-status-banner div > span {
-  display: block;
-}
-
-.sample-banner strong,
-.week-status-banner strong {
-  font-weight: 700;
-}
-
-.sample-banner div > span {
-  color: #536786;
-}
-
-.week-status-banner div > span {
-  color: #7d6541;
-}
-
-.week-status-banner--future div > span {
-  color: #536786;
-}
-
 .meal-data-notice {
   display: grid;
   min-width: 0;
@@ -279,12 +213,24 @@ a {
 }
 
 .meal-data-notice--date-unverified {
-  background: #fffaf0;
-  border-color: #e4bd73;
-  border-left-color: #b87108;
+  background: var(--color-warning-soft);
+  border-color: var(--color-warning-line);
+  border-left-color: var(--color-warning);
 }
 
 .meal-data-notice--sample {
+  background: var(--color-primary-soft);
+  border-color: #b7caf5;
+  border-left-color: var(--color-primary);
+}
+
+.meal-data-notice--past {
+  background: var(--color-warning-soft);
+  border-color: var(--color-warning-line);
+  border-left-color: var(--color-warning);
+}
+
+.meal-data-notice--future {
   background: var(--color-primary-soft);
   border-color: #b7caf5;
   border-left-color: var(--color-primary);
@@ -308,6 +254,14 @@ a {
   overflow-wrap: anywhere;
 }
 
+.meal-data-statuses {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .meal-data-status {
   display: inline-flex;
   min-height: 25px;
@@ -328,8 +282,54 @@ a {
 }
 
 .meal-data-notice--date-unverified .meal-data-status {
-  color: #754604;
+  color: var(--color-warning-ink);
   background: #f8e8c8;
+}
+
+.meal-data-freshness {
+  display: inline-flex;
+  min-height: 25px;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.meal-data-freshness--past {
+  color: var(--color-warning-ink);
+  background: #f8e8c8;
+}
+
+.meal-data-freshness--future {
+  color: var(--color-primary-dark);
+  background: #dce8ff;
+}
+
+.meal-data-notice--past .meal-data-status,
+.meal-data-notice--future .meal-data-status {
+  color: var(--color-ink-soft);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 0 0 1px var(--color-line);
+}
+
+.meal-data-notice-copy {
+  min-width: 0;
+}
+
+.meal-data-notice-copy p {
+  max-width: 48rem;
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 0.76rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.meal-data-notice--past .meal-data-notice-copy p {
+  color: #675536;
 }
 
 .meal-data-meta {
@@ -369,8 +369,9 @@ a {
   border-top: 1px solid var(--color-line);
 }
 
-.meal-data-notice--date-unverified .meal-data-source-notes {
-  border-top-color: #e8c98c;
+.meal-data-notice--date-unverified .meal-data-source-notes,
+.meal-data-notice--past .meal-data-source-notes {
+  border-top-color: var(--color-warning-line);
 }
 
 .meal-data-source-notes summary,
@@ -1282,6 +1283,15 @@ h2 {
   color: #536786;
 }
 
+.empty-state.empty-state--freshness {
+  min-height: 150px;
+  padding-block: var(--space-6);
+}
+
+.empty-state--freshness strong {
+  color: var(--color-ink);
+}
+
 .weekly-section {
   margin-top: var(--space-6);
   margin-inline: calc(var(--space-5) * -1);
@@ -1624,11 +1634,6 @@ summary:focus-visible {
     grid-column: auto;
     max-width: 310px;
     font-size: 0.68rem;
-  }
-
-  .sample-banner,
-  .week-status-banner {
-    margin-top: var(--space-5);
   }
 
   .meal-data-notice {

@@ -52,6 +52,19 @@ test("출처와 메뉴별 불확실 문구를 숨기지 않고 확인할 수 있
   await expect(uncertaintyDetails.first()).toContainText("확실하지 않습니다");
 });
 
+test("날짜 미확인 데이터는 임시 날짜가 지나도 지난 식단으로 단정하지 않는다", async ({
+  page,
+}) => {
+  await page.clock.setFixedTime(new Date("2026-08-20T12:00:00+09:00"));
+  await page.goto("/");
+
+  const notice = page.locator(".meal-data-notice--date-unverified");
+  await expect(notice).toBeVisible();
+  await expect(notice).not.toHaveClass(/meal-data-notice--(past|future)/);
+  await expect(notice.locator(".meal-data-freshness")).toHaveCount(0);
+  await expect(page.getByText("지난 식단", { exact: true })).toHaveCount(0);
+});
+
 test("모바일 quick nav는 스크롤 위치에 맞춰 현재 section을 갱신한다", async ({
   page,
 }) => {

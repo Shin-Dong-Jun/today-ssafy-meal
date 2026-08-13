@@ -11,6 +11,7 @@ import {
   DAY_OF_WEEK_LABELS,
   formatCurrentDate,
   formatMealDate,
+  type MealWeekStatus,
 } from "../utils/date";
 import { MealDecisionPanel } from "./MealDecisionPanel";
 import { MealRouletteDialog } from "./MealRouletteDialog";
@@ -24,6 +25,8 @@ interface TodayMealProps {
   isWeekend: boolean;
   dataUpdatedAt: string;
   dataStatus: MealDataStatus;
+  weekStatus: MealWeekStatus;
+  mealWeekRange: string;
 }
 
 export function TodayMeal({
@@ -34,11 +37,14 @@ export function TodayMeal({
   isWeekend,
   dataUpdatedAt,
   dataStatus,
+  weekStatus,
+  mealWeekRange,
 }: TodayMealProps) {
   const [rouletteMealDate, setRouletteMealDate] = useState<string | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const isDateVerified = dataStatus === "DATE_VERIFIED";
+  const isCurrentWeek = weekStatus === "CURRENT";
   const isSample = dataStatus === "SAMPLE";
   const verifiedMeal = isDateVerified ? meal : undefined;
   const { decision, saveDecision, clearDecision } = useMealDecision({
@@ -91,13 +97,15 @@ export function TodayMeal({
           <p className="section-kicker">점심</p>
           <h2 id="today-heading" ref={headingRef} tabIndex={-1}>
             {isDateVerified
-              ? "오늘의 메뉴"
+              ? isCurrentWeek
+                ? "오늘의 메뉴"
+                : "이번 주 식단 준비 중"
               : isSample
                 ? "샘플 식단 안내"
                 : "식단 확인 상태"}
           </h2>
         </div>
-        {isDateVerified && (
+        {isDateVerified && isCurrentWeek && (
           <time
             className="section-date"
             dateTime={verifiedMeal?.date ?? todayKey}
@@ -109,7 +117,7 @@ export function TodayMeal({
         )}
       </div>
 
-      {isDateVerified && (
+      {isDateVerified && isCurrentWeek && (
         <ol className="weekday-strip" aria-label="이번 주 평일 날짜">
           {weekMeals.map((weekdayMeal) => {
             const [, month, day] = weekdayMeal.date.split("-").map(Number);
@@ -154,6 +162,19 @@ export function TodayMeal({
               {isSample
                 ? "화면 구성 확인용 데이터라 오늘 날짜와 연결하지 않았어요."
                 : "원본 사진에서 날짜를 확인할 수 없어 아래 메뉴를 특정 요일 식단으로 단정하지 않았어요."}
+            </p>
+          </div>
+        ) : !isCurrentWeek ? (
+          <div className="empty-state empty-state--freshness">
+            <strong>
+              {weekStatus === "PAST"
+                ? "현재 확인된 최신 식단"
+                : "예정된 식단을 미리 확인해보세요"}
+            </strong>
+            <p>
+              {weekStatus === "PAST"
+                ? `${mealWeekRange} 식단을 아래에서 볼 수 있어요.`
+                : `${mealWeekRange} 식단을 미리 확인할 수 있어요.`}
             </p>
           </div>
         ) : isWeekend ? (

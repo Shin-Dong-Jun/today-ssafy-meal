@@ -36,24 +36,11 @@ function App({ mealData = weeklyMeal }: AppProps) {
 
       <SiteHeader currentDate={currentDate} updatedAt={mealData.updatedAt} />
 
-      <MealDataNotice weeklyMeal={mealData} currentDate={currentDate} />
-
-      {isDateVerified && mealWeekStatus !== "CURRENT" && (
-        <aside
-          className={`week-status-banner week-status-banner--${mealWeekStatus.toLowerCase()}`}
-          aria-label="식단 주차 안내"
-        >
-          <span className="week-status-mark" aria-hidden="true" />
-          <div>
-            <strong>
-              {mealWeekStatus === "PAST"
-                ? "이번 주 식단이 아직 갱신되지 않았어요."
-                : "다음 주 식단을 미리 표시하고 있어요."}
-            </strong>
-            <span>{mealWeekRange} 식단을 보여주고 있습니다.</span>
-          </div>
-        </aside>
-      )}
+      <MealDataNotice
+        weeklyMeal={mealData}
+        currentDate={currentDate}
+        weekStatus={mealWeekStatus}
+      />
 
       <main id="main-content">
         <div className="main-container">
@@ -65,12 +52,15 @@ function App({ mealData = weeklyMeal }: AppProps) {
             isWeekend={isSeoulWeekend(currentDate)}
             dataUpdatedAt={mealData.updatedAt}
             dataStatus={mealData.status}
+            weekStatus={mealWeekStatus}
+            mealWeekRange={mealWeekRange}
           />
 
           <WeeklyMeals
             meals={weekdayMeals}
             todayKey={todayKey}
             dataStatus={mealData.status}
+            weekStatus={mealWeekStatus}
           />
         </div>
       </main>
@@ -78,14 +68,20 @@ function App({ mealData = weeklyMeal }: AppProps) {
       <MobileQuickNav
         todayLabel={
           isDateVerified
-            ? "오늘"
+            ? mealWeekStatus === "CURRENT"
+              ? "오늘"
+              : "이번 주 안내"
             : mealData.status === "SAMPLE"
               ? "샘플 안내"
               : "확인 상태"
         }
         weeklyLabel={
           isDateVerified
-            ? "이번 주"
+            ? mealWeekStatus === "PAST"
+              ? "지난 식단"
+              : mealWeekStatus === "FUTURE"
+                ? "예정 식단"
+                : "이번 주"
             : mealData.status === "SAMPLE"
               ? "샘플 식단"
               : "판독 식단"

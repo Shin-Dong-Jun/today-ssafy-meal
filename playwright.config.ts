@@ -20,7 +20,7 @@ export default defineConfig({
   projects: [
     {
       name: "production-preview",
-      testIgnore: "**/meal-decision.spec.ts",
+      testIgnore: ["**/meal-decision.spec.ts", "**/meal-freshness.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: "http://127.0.0.1:4173",
@@ -28,7 +28,7 @@ export default defineConfig({
     },
     {
       name: "verified-dev",
-      testMatch: "**/meal-decision.spec.ts",
+      testMatch: ["**/meal-decision.spec.ts", "**/meal-freshness.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: "http://127.0.0.1:4174",
