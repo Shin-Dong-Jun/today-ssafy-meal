@@ -562,6 +562,148 @@ h2 {
   background: var(--color-primary-dark);
 }
 
+.meal-decision {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding: var(--space-5);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(234, 241, 255, 0.92)),
+    var(--color-primary-soft);
+  border: 1px solid #b7caf5;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.1);
+  overflow: hidden;
+  animation: decision-reveal 360ms cubic-bezier(0.2, 0.78, 0.24, 1) both;
+}
+
+.meal-decision::after {
+  position: absolute;
+  top: -44px;
+  right: -40px;
+  width: 124px;
+  height: 124px;
+  background: rgba(37, 99, 235, 0.08);
+  border-radius: 50%;
+  content: "";
+}
+
+.meal-decision-summary {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.meal-decision-check {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  color: #ffffff;
+  background: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.22);
+  font-size: 1rem;
+  font-weight: 800;
+  place-items: center;
+}
+
+.meal-decision-summary p {
+  min-width: 0;
+  margin: 0;
+}
+
+.meal-decision-summary p > span,
+.meal-decision-summary strong,
+.meal-decision-summary small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.meal-decision-summary p > span {
+  color: var(--color-primary-dark);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.meal-decision-summary strong {
+  margin-top: 2px;
+  color: var(--color-ink);
+  font-size: 0.96rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.45;
+}
+
+.meal-decision-summary small {
+  margin-top: 3px;
+  color: var(--color-ink-soft);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.meal-decision-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.meal-decision-actions button {
+  min-height: 42px;
+  padding: 9px 13px;
+  color: var(--color-primary-dark);
+  background: #ffffff;
+  border: 1px solid #b7caf5;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.meal-decision-actions .meal-decision-share {
+  color: #ffffff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.meal-decision-actions .meal-decision-clear {
+  color: var(--color-ink-soft);
+  background: transparent;
+  border-color: transparent;
+}
+
+.meal-decision-status {
+  position: relative;
+  z-index: 1;
+  min-height: 1.4em;
+  margin: calc(var(--space-2) * -1) 0 0;
+  color: var(--color-primary-dark);
+  font-size: 0.7rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+@keyframes decision-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .roulette-dialog {
   width: 100vw;
   max-width: none;
@@ -1181,6 +1323,18 @@ button:focus-visible {
     background: var(--color-primary-dark);
   }
 
+  .meal-decision-actions button:hover {
+    color: #ffffff;
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+  }
+
+  .meal-decision-actions .meal-decision-clear:hover {
+    color: var(--color-ink);
+    background: var(--color-surface-subtle);
+    border-color: var(--color-line);
+  }
+
   .roulette-close:hover {
     color: var(--color-primary-dark);
     background: var(--color-primary-soft);
@@ -1377,6 +1531,22 @@ button:focus-visible {
     margin-top: var(--space-4);
     margin-bottom: 0;
     padding-inline: var(--space-1);
+  }
+
+  .meal-decision {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    margin-top: var(--space-4);
+    margin-bottom: 0;
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .meal-decision-actions {
+    justify-content: flex-end;
+  }
+
+  .meal-decision-status {
+    grid-column: 1 / -1;
   }
 
   .protein-summary {

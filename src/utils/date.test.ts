@@ -4,6 +4,7 @@ import {
   buildWeekdayMealSlots,
   formatMealWeekRange,
   formatUpdatedAtCompact,
+  getMillisecondsUntilNextSeoulDay,
   getMealWeekStatus,
   formatMealDate,
   getSeoulDateKey,
@@ -25,6 +26,19 @@ describe("서울 시간대 날짜 처리", () => {
     expect(getSeoulDateKey(new Date("2026-08-16T15:00:00.000Z"))).toBe(
       "2026-08-17",
     );
+  });
+
+  it("서울 자정까지 남은 시간을 경계에서 정확히 계산한다", () => {
+    expect(
+      getMillisecondsUntilNextSeoulDay(
+        new Date("2026-08-16T23:59:59.500+09:00"),
+      ),
+    ).toBe(500);
+    expect(
+      getMillisecondsUntilNextSeoulDay(
+        new Date("2026-08-17T00:00:00.000+09:00"),
+      ),
+    ).toBe(24 * 60 * 60 * 1000);
   });
 
   it("서울 기준 주말을 판별한다", () => {
