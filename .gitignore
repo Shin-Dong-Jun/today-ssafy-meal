@@ -11,6 +11,8 @@ dist/
 
 # Tool caches and reports
 coverage/
+playwright-report/
+test-results/
 *.tsbuildinfo
 .eslintcache
 
