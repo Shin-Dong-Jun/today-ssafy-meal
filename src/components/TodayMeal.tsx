@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { getDailyMenuItems, type DailyMeal } from "../data/meals";
 import { assessProtein } from "../utils/assessProtein";
@@ -7,7 +7,12 @@ import {
   formatCurrentDate,
   formatMealDate,
 } from "../utils/date";
-import { pickMealOptionIndex } from "../utils/pickMealOption";
+import {
+  createMealRouletteOdds,
+  getMealRouletteLandingRotation,
+  pickMealRouletteOption,
+  type MealRouletteOdds,
+} from "../utils/pickMealOption";
 
 interface TodayMealProps {
   currentDate: Date;
@@ -22,6 +27,8 @@ interface MealPick {
   optionIndex: number;
 }
 
+const ROULETTE_DURATION_MS = 1800;
+
 export function TodayMeal({
   currentDate,
   todayKey,
@@ -30,11 +37,20 @@ export function TodayMeal({
   isWeekend,
 }: TodayMealProps) {
   const [mealPick, setMealPick] = useState<MealPick | null>(null);
+  const [isRouletteOpen, setIsRouletteOpen] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [rouletteOdds, setRouletteOdds] = useState<MealRouletteOdds>({
+    optionA: 50,
+    optionB: 50,
+  });
+  const [rouletteRotation, setRouletteRotation] = useState(0);
+  const spinTimeoutRef = useRef<number | null>(null);
+  const spinStartRotationRef = useRef(0);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const spinButtonRef = useRef<HTMLButtonElement>(null);
   const menuItems = meal ? getDailyMenuItems(meal) : [];
-  const assessment = assessProtein(
-    menuItems,
-    meal?.uncertainTexts ?? [],
-  );
+  const assessment = assessProtein(menuItems, meal?.uncertainTexts ?? []);
   const proteinItems =
     assessment.matchedMenuItems.length > 0
       ? assessment.matchedMenuItems
@@ -51,28 +67,101 @@ export function TodayMeal({
   const selectedOption =
     selectedOptionIndex === null
       ? undefined
-      : selectableOptions[selectedOptionIndex];
+      : selectableOptions.find(
+          ({ optionIndex }) => optionIndex === selectedOptionIndex,
+        );
 
-  const pickOption = () => {
-    if (!meal) {
+  useEffect(() => {
+    return () => {
+      if (spinTimeoutRef.current !== null) {
+        window.clearTimeout(spinTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+
+    if (isRouletteOpen && dialog && !dialog.open) {
+      dialog.showModal();
+      window.requestAnimationFrame(() => spinButtonRef.current?.focus());
+    }
+  }, [isRouletteOpen]);
+
+  const openRoulette = () => {
+    if (spinTimeoutRef.current !== null) {
+      window.clearTimeout(spinTimeoutRef.current);
+      spinTimeoutRef.current = null;
+    }
+
+    setRouletteOdds(createMealRouletteOdds(Math.random()));
+    setRouletteRotation(0);
+    setMealPick(null);
+    setIsSpinning(false);
+    setIsRouletteOpen(true);
+  };
+
+  const handleRouletteClosed = () => {
+    if (spinTimeoutRef.current !== null) {
+      window.clearTimeout(spinTimeoutRef.current);
+      spinTimeoutRef.current = null;
+    }
+
+    if (isSpinning) {
+      setRouletteRotation(spinStartRotationRef.current);
+      setIsSpinning(false);
+    }
+
+    setIsRouletteOpen(false);
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  };
+
+  const closeRoulette = () => dialogRef.current?.close();
+
+  const spinRoulette = () => {
+    if (!meal || isSpinning || selectableOptions.length !== 2) {
       return;
     }
 
-    setMealPick((previousPick) => {
-      const previousIndex =
-        previousPick?.mealDate === meal.date
-          ? previousPick.optionIndex
-          : null;
-      const optionIndex = pickMealOptionIndex(
-        selectableOptions.length,
-        Math.random(),
-        previousIndex,
-      );
+    const selectedSelectableIndex = pickMealRouletteOption(
+      rouletteOdds,
+      Math.random(),
+    );
+    const selectedMealOptionIndex =
+      selectableOptions[selectedSelectableIndex].optionIndex;
+    const nextRotation = getMealRouletteLandingRotation(
+      selectedSelectableIndex,
+      rouletteOdds,
+      Math.random(),
+      rouletteRotation,
+    );
 
-      return optionIndex === null
-        ? null
-        : { mealDate: meal.date, optionIndex };
-    });
+    spinStartRotationRef.current = rouletteRotation;
+    setIsSpinning(true);
+    setRouletteRotation(nextRotation);
+    setMealPick(null);
+
+    const finishSpin = () => {
+      setMealPick({
+        mealDate: meal.date,
+        optionIndex: selectedMealOptionIndex,
+      });
+      setIsSpinning(false);
+      spinTimeoutRef.current = null;
+    };
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion) {
+      finishSpin();
+      return;
+    }
+
+    spinTimeoutRef.current = window.setTimeout(
+      finishSpin,
+      ROULETTE_DURATION_MS,
+    );
   };
 
   return (
@@ -139,11 +228,7 @@ export function TodayMeal({
           <>
             <div className="today-menu-groups">
               {meal.mealOptions.map((option, optionIndex) => {
-                const selectableOptionIndex = selectableOptions.findIndex(
-                  (selectableOption) => selectableOption.option === option,
-                );
-                const isSelected =
-                  selectableOptionIndex === selectedOptionIndex;
+                const isSelected = optionIndex === selectedOption?.optionIndex;
 
                 return (
                   <section
@@ -152,10 +237,8 @@ export function TodayMeal({
                   >
                     <header className="menu-group-heading">
                       <div className="menu-group-labels">
-                        <span>
-                          메뉴 {String.fromCharCode(65 + optionIndex)}
-                        </span>
-                        {isSelected && <strong>오늘의 선택</strong>}
+                        <span>메뉴 {String.fromCharCode(65 + optionIndex)}</span>
+                        {isSelected && <strong>룰렛의 선택</strong>}
                       </div>
                       <h3>{option.label}</h3>
                     </header>
@@ -184,33 +267,22 @@ export function TodayMeal({
               })}
             </div>
 
-            {selectableOptions.length >= 2 && (
-              <section
-                className={`meal-picker${selectedOption ? " meal-picker--picked" : ""}`}
-                aria-labelledby="meal-picker-heading"
-              >
-                <div className="meal-picker-copy">
-                  <p className="meal-picker-kicker">결정이 어렵다면</p>
-                  <h3 id="meal-picker-heading">
-                    {selectedOption
-                      ? `오늘은 메뉴 ${String.fromCharCode(65 + selectedOption.optionIndex)}로 가볼까요?`
-                      : "두 메뉴 중 하나를 가볍게 골라드릴게요."}
-                  </h3>
-                  <p>메뉴 정보와 무관한 무작위 선택이에요.</p>
-                  <span
-                    className="visually-hidden"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    {selectedOption
-                      ? `메뉴 ${String.fromCharCode(65 + selectedOption.optionIndex)}가 선택되었습니다.`
-                      : ""}
-                  </span>
-                </div>
-                <button type="button" onClick={pickOption}>
-                  {selectedOption ? "다시 고르기" : "오늘 메뉴 골라줘"}
+            {selectableOptions.length === 2 && (
+              <div className="roulette-entry">
+                <p>
+                  <strong>A/B 고민될 때</strong>
+                  <span>메뉴를 다 봤는데도 못 고르겠다면</span>
+                </p>
+                <button
+                  type="button"
+                  ref={triggerRef}
+                  aria-haspopup="dialog"
+                  aria-controls="meal-roulette-dialog"
+                  onClick={openRoulette}
+                >
+                  룰렛 열기
                 </button>
-              </section>
+              </div>
             )}
 
             <div className="protein-summary">
@@ -245,6 +317,103 @@ export function TodayMeal({
           </>
         )}
       </div>
+
+      {isRouletteOpen && (
+        <dialog
+          id="meal-roulette-dialog"
+          className="roulette-dialog"
+          ref={dialogRef}
+          aria-labelledby="roulette-title"
+          aria-describedby="roulette-description"
+          onCancel={(event) => {
+            event.preventDefault();
+            closeRoulette();
+          }}
+          onClose={handleRouletteClosed}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              closeRoulette();
+            }
+          }}
+        >
+          <div className="roulette-sheet">
+            <header className="roulette-header">
+              <div>
+                <p>A/B 메뉴 룰렛</p>
+                <h3 id="roulette-title">오늘은 어디로 갈까요?</h3>
+              </div>
+              <button
+                className="roulette-close"
+                type="button"
+                aria-label="룰렛 닫기"
+                onClick={closeRoulette}
+              >
+                ×
+              </button>
+            </header>
+
+            <p className="roulette-description" id="roulette-description">
+              이번에는 한쪽 메뉴에 55~65%의 행운을 줬어요. 어느 쪽이
+              유리할지는 룰렛을 열 때마다 바뀝니다.
+            </p>
+
+            <div className="roulette-stage">
+              <span className="roulette-pointer" aria-hidden="true" />
+              <div
+                className={`roulette-wheel${isSpinning ? " roulette-wheel--spinning" : ""}`}
+                style={{
+                  background: `conic-gradient(var(--color-roulette-a) 0 ${rouletteOdds.optionA}%, var(--color-roulette-b) ${rouletteOdds.optionA}% 100%)`,
+                  transform: `rotate(${rouletteRotation}deg)`,
+                }}
+                aria-hidden="true"
+              >
+                <span className="roulette-label roulette-label--a">A</span>
+                <span className="roulette-label roulette-label--b">B</span>
+              </div>
+            </div>
+
+            <div className="roulette-odds" aria-label="이번 룰렛 확률">
+              <span>메뉴 A {rouletteOdds.optionA}%</span>
+              <span>메뉴 B {rouletteOdds.optionB}%</span>
+            </div>
+
+            <div
+              className="roulette-result"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {isSpinning ? (
+                <p>룰렛이 메뉴를 고르는 중이에요…</p>
+              ) : selectedOption ? (
+                <p>
+                  결과는{" "}
+                  <strong>
+                    메뉴 {String.fromCharCode(65 + selectedOption.optionIndex)} · {selectedOption.option.label}
+                  </strong>
+                  입니다.
+                </p>
+              ) : (
+                <p>버튼을 눌러 오늘의 메뉴를 정해보세요.</p>
+              )}
+            </div>
+
+            <button
+              className="roulette-spin-button"
+              type="button"
+              ref={spinButtonRef}
+              disabled={isSpinning}
+              onClick={spinRoulette}
+            >
+              {isSpinning
+                ? "돌아가는 중…"
+                : selectedOption
+                  ? "한 번 더 돌리기"
+                  : "룰렛 돌리기"}
+            </button>
+          </div>
+        </dialog>
+      )}
     </section>
   );
 }
