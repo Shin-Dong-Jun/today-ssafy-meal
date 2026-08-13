@@ -1,10 +1,8 @@
 import { useMemo } from "react";
 
 import { MealDataNotice } from "./components/MealDataNotice";
-import {
-  MobileQuickNav,
-  type MobileQuickNavItem,
-} from "./components/MobileQuickNav";
+import { MealNavigator } from "./components/MealNavigator";
+import { buildMealNavigatorModel } from "./components/mealNavigatorModel";
 import { SiteHeader } from "./components/SiteHeader";
 import { TodayMeal } from "./components/TodayMeal";
 import { WeeklyMeals } from "./components/WeeklyMeals";
@@ -29,33 +27,16 @@ function App({ mealData = weeklyMeal }: AppProps) {
   const todayMeal = isDateVerified
     ? mealData.meals.find((meal) => meal.date === todayKey)
     : undefined;
-  const weekdayMeals = buildWeekdayMealSlots(mealData);
+  const weekdayMeals = useMemo(
+    () => buildWeekdayMealSlots(mealData),
+    [mealData],
+  );
   const mealWeekStatus = getMealWeekStatus(mealData.weekStart, currentDate);
   const mealWeekRange = formatMealWeekRange(mealData.weekStart);
-  const quickNavItems = useMemo<readonly MobileQuickNavItem[]>(
+  const mealNavigatorModel = useMemo(
     () =>
-      isDateVerified
-        ? [
-            {
-              targetId: "today-section",
-              label:
-                mealWeekStatus === "CURRENT" ? "오늘" : "이번 주 안내",
-            },
-            {
-              targetId: "weekly-section",
-              label:
-                mealWeekStatus === "PAST"
-                  ? "지난 식단"
-                  : mealWeekStatus === "FUTURE"
-                    ? "예정 식단"
-                    : "이번 주",
-            },
-          ]
-        : [
-            { targetId: "meal-data-notice", label: "안내" },
-            { targetId: "weekly-section", label: "식단 보기" },
-          ],
-    [isDateVerified, mealWeekStatus],
+      buildMealNavigatorModel(mealData, mealWeekStatus, weekdayMeals),
+    [mealData, mealWeekStatus, weekdayMeals],
   );
 
   return (
@@ -72,6 +53,11 @@ function App({ mealData = weeklyMeal }: AppProps) {
         weekStatus={mealWeekStatus}
       />
 
+      <MealNavigator
+        items={mealNavigatorModel.items}
+        ariaLabel={mealNavigatorModel.ariaLabel}
+      />
+
       <main id="main-content">
         <div
           className={`main-container${isDateVerified ? "" : " main-container--menu-first"}`}
@@ -81,7 +67,6 @@ function App({ mealData = weeklyMeal }: AppProps) {
               currentDate={currentDate}
               todayKey={todayKey}
               meal={todayMeal}
-              weekMeals={weekdayMeals}
               isWeekend={isSeoulWeekend(currentDate)}
               dataUpdatedAt={mealData.updatedAt}
               dataStatus={mealData.status}
@@ -98,8 +83,6 @@ function App({ mealData = weeklyMeal }: AppProps) {
           />
         </div>
       </main>
-
-      <MobileQuickNav items={quickNavItems} />
 
       <footer className="site-footer">
         <strong>오늘 싸피밥</strong>

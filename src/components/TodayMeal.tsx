@@ -8,7 +8,6 @@ import {
 import { useMealDecision } from "../hooks/useMealDecision";
 import { assessProtein } from "../utils/assessProtein";
 import {
-  DAY_OF_WEEK_LABELS,
   formatCurrentDate,
   formatMealDate,
   type MealWeekStatus,
@@ -21,7 +20,6 @@ interface TodayMealProps {
   currentDate: Date;
   todayKey: string;
   meal?: DailyMeal;
-  weekMeals: DailyMeal[];
   isWeekend: boolean;
   dataUpdatedAt: string;
   dataStatus: MealDataStatus;
@@ -33,7 +31,6 @@ export function TodayMeal({
   currentDate,
   todayKey,
   meal,
-  weekMeals,
   isWeekend,
   dataUpdatedAt,
   dataStatus,
@@ -117,37 +114,6 @@ export function TodayMeal({
           </time>
         )}
       </div>
-
-      {isDateVerified && isCurrentWeek && (
-        <ol className="weekday-strip" aria-label="이번 주 평일 날짜">
-          {weekMeals.map((weekdayMeal) => {
-            const [, month, day] = weekdayMeal.date.split("-").map(Number);
-            const isToday = weekdayMeal.date === todayKey;
-            const dayLabel = DAY_OF_WEEK_LABELS[weekdayMeal.dayOfWeek];
-
-            return (
-              <li
-                className={
-                  isToday ? "weekday-chip weekday-chip--today" : "weekday-chip"
-                }
-                key={weekdayMeal.date}
-              >
-                <a
-                  href={`#meal-${weekdayMeal.date}`}
-                  aria-current={isToday ? "date" : undefined}
-                  aria-label={`${month}월 ${day}일 ${dayLabel} 식단으로 이동`}
-                >
-                  <time dateTime={weekdayMeal.date}>
-                    <span>{dayLabel.slice(0, 1)}</span>
-                    <strong>{day}</strong>
-                    {isToday && <i aria-hidden="true" />}
-                  </time>
-                </a>
-              </li>
-            );
-          })}
-        </ol>
-      )}
 
       <div className="today-card">
         {!isDateVerified ? (

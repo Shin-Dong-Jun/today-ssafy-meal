@@ -1,6 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 const VERIFIED_WEEK_RANGE = "8월 10일~14일";
+const VERIFIED_MEAL_NAV_ITEMS = [
+  { label: "오늘", targetId: "today-section" },
+  { label: "월", targetId: "meal-2026-08-10" },
+  { label: "화", targetId: "meal-2026-08-11" },
+  { label: "수", targetId: "meal-2026-08-12" },
+  { label: "목", targetId: "meal-2026-08-13" },
+  { label: "금", targetId: "meal-2026-08-14" },
+] as const;
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -34,6 +42,15 @@ test("지난 식단 안내를 기존 데이터 상태 카드에 통합한다", a
     page.getByRole("heading", { name: "이번 주 식단 준비 중" }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "지난 식단" })).toBeVisible();
+
+  const mealNav = page.getByRole("navigation", {
+    name: "지난 식단 바로가기",
+  });
+  const noticeLink = mealNav.getByRole("link", { name: "안내", exact: true });
+  await expect(noticeLink).toHaveAttribute(
+    "href",
+    "#meal-data-notice",
+  );
 
   const colors = await notice.evaluate((element) => {
     const styles = getComputedStyle(element);
@@ -86,6 +103,15 @@ test("다음 주 식단도 같은 상태 카드의 정보 variant로 표시한�
   );
   await expect(page.getByRole("heading", { name: "예정 식단" })).toBeVisible();
 
+  const mealNav = page.getByRole("navigation", {
+    name: "예정 식단 바로가기",
+  });
+  const noticeLink = mealNav.getByRole("link", { name: "안내", exact: true });
+  await expect(noticeLink).toHaveAttribute(
+    "href",
+    "#meal-data-notice",
+  );
+
   const colors = await notice.evaluate((element) => {
     const styles = getComputedStyle(element);
     return {
@@ -109,39 +135,75 @@ test("현재 주에는 freshness badge를 추가하지 않는다", async ({ page
   await expect(notice.locator(".meal-data-status")).toHaveText("날짜 확인");
   await expect(notice.locator(".meal-data-freshness")).toHaveCount(0);
   await expect(notice).not.toHaveClass(/meal-data-notice--(past|future)/);
-  await expect(page.locator(".weekday-strip")).toBeVisible();
+  await expect(page.locator(".weekday-strip")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "이번 주 식단" })).toBeVisible();
 });
 
-test("검증된 현재 주 quick nav는 오늘과 이번 주 식단으로 이동한다", async ({
+test("검증된 현재 주 식단 navigator는 월~금 날짜 target과 click 이동을 제공한다", async ({
+  page,
+}) => {
+  await page.clock.setFixedTime(new Date("2026-08-13T12:00:00+09:00"));
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const mealNav = page.getByRole("navigation", { name: "식단 바로가기" });
+  const links = mealNav.getByRole("link");
+
+  await expect(mealNav).toBeVisible();
+  await expect(links).toHaveCount(VERIFIED_MEAL_NAV_ITEMS.length);
+
+  for (const { label, targetId } of VERIFIED_MEAL_NAV_ITEMS) {
+    const link = mealNav.locator(`a[href="#${targetId}"]`);
+
+    await expect(link).toContainText(label);
+    await expect(page.locator(`#${targetId}`)).toHaveCount(1);
+  }
+
+  const wednesdayLink = mealNav.locator('a[href="#meal-2026-08-12"]');
+
+  await wednesdayLink.click();
+
+  await expect(page).toHaveURL(/#meal-2026-08-12$/);
+  await expect(page.locator("#meal-2026-08-12")).toBeFocused();
+  await expect(page.locator("#meal-2026-08-12")).toHaveAccessibleName(
+    "수요일 8월 12일",
+  );
+  await page.waitForTimeout(250);
+  await expect(wednesdayLink).toHaveAttribute("aria-current", "location");
+  await expect(mealNav.locator('a[aria-current="location"]')).toHaveCount(1);
+
+  await page.locator("body").dispatchEvent("wheel", { deltaY: 100 });
+  await page.evaluate(() => {
+    window.scrollTo(0, document.documentElement.scrollHeight);
+  });
+  await expect(mealNav.locator('a[href="#meal-2026-08-14"]')).toHaveAttribute(
+    "aria-current",
+    "location",
+  );
+});
+
+test("검증된 현재 주 식단 navigator는 스크롤 위치를 반영한다", async ({
   page,
 }) => {
   await page.clock.setFixedTime(new Date("2026-08-13T12:00:00+09:00"));
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto("/");
 
-  const quickNav = page.getByRole("navigation", { name: "페이지 바로가기" });
-  const todayLink = quickNav.getByRole("link", { name: "오늘", exact: true });
-  const weeklyLink = quickNav.getByRole("link", {
-    name: "이번 주",
-    exact: true,
+  const mealNav = page.getByRole("navigation", { name: "식단 바로가기" });
+  const tuesdayLink = mealNav.locator('a[href="#meal-2026-08-11"]');
+
+  await page.locator("#meal-2026-08-11").evaluate((mealCard) => {
+    mealCard.scrollIntoView({ block: "center" });
   });
 
-  await expect(todayLink).toHaveAttribute("href", "#today-section");
-  await expect(weeklyLink).toHaveAttribute("href", "#weekly-section");
-  await expect(todayLink).toHaveAttribute("aria-current", "location");
+  await expect(tuesdayLink).toHaveAttribute("aria-current", "location");
+  await expect(mealNav.locator('a[aria-current="location"]')).toHaveCount(1);
 
-  await weeklyLink.click();
+  const overflowPixels = await page.evaluate(() => {
+    const root = document.documentElement;
+    return Math.max(root.scrollWidth, document.body.scrollWidth) - root.clientWidth;
+  });
 
-  await expect(page).toHaveURL(/#weekly-section$/);
-  await expect(page.locator("#weekly-section")).toBeFocused();
-  await expect(weeklyLink).toHaveAttribute("aria-current", "location");
-  await expect(todayLink).not.toHaveAttribute("aria-current", "location");
-
-  await todayLink.click();
-
-  await expect(page).toHaveURL(/#today-section$/);
-  await expect(page.locator("#today-section")).toBeFocused();
-  await expect(todayLink).toHaveAttribute("aria-current", "location");
-  await expect(weeklyLink).not.toHaveAttribute("aria-current", "location");
+  expect(overflowPixels).toBeLessThanOrEqual(1);
 });

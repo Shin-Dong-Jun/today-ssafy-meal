@@ -1,9 +1,17 @@
 import { expect, test } from "@playwright/test";
 
 const THURSDAY_NOON_KST = new Date("2026-08-13T12:00:00+09:00");
+const UNVERIFIED_MEAL_NAV_ITEMS = [
+  { label: "안내", targetId: "meal-data-notice" },
+  ...Array.from({ length: 5 }, (_, index) => ({
+    label: `식단 ${index + 1}`,
+    targetId: `meal-slot-${index + 1}`,
+  })),
+];
 
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(THURSDAY_NOON_KST);
+  await page.emulateMedia({ reducedMotion: "reduce" });
 });
 
 test("날짜 미확인 데이터는 확정된 오늘 식단처럼 표시하지 않는다", async ({
@@ -37,7 +45,7 @@ test("320x568 첫 화면에서 첫 판독 식단과 메뉴를 바로 확인할 �
   await page.setViewportSize({ width: 320, height: 568 });
   await page.goto("/");
 
-  const fixedNav = page.getByRole("navigation", { name: "페이지 바로가기" });
+  const fixedNav = page.getByRole("navigation", { name: "사진 순서 바로가기" });
   const firstMealTitle = page.locator(".meal-card h3").first();
   const firstMenuHeading = page.locator(".meal-card h4").first();
   const firstMenuItem = page.locator(".meal-card .weekly-menu-list li").first();
@@ -112,46 +120,123 @@ test("날짜 미확인 데이터는 임시 날짜가 지나도 지난 식단으�
   await expect(page.getByText("지난 식단", { exact: true })).toHaveCount(0);
 });
 
-test("모바일 quick nav는 안내와 식단 보기 section으로 정확히 이동한다", async ({
+for (const { width, height } of [
+  { width: 320, height: 568 },
+  { width: 360, height: 800 },
+] as const) {
+  test(`${width}px에서 안내와 날짜 미확인 식단 1~5 navigator를 표시한다`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto("/");
+
+    const mealNav = page.getByRole("navigation", {
+      name: "사진 순서 바로가기",
+    });
+    const links = mealNav.getByRole("link");
+
+    await expect(mealNav).toBeVisible();
+    await expect(links).toHaveCount(UNVERIFIED_MEAL_NAV_ITEMS.length);
+
+    for (const { label, targetId } of UNVERIFIED_MEAL_NAV_ITEMS) {
+      const link = mealNav.getByRole("link", { name: label, exact: true });
+
+      await expect(link).toHaveAttribute("href", `#${targetId}`);
+      await expect(page.locator(`#${targetId}`)).toHaveCount(1);
+    }
+
+    const overflowPixels = await page.evaluate(() => {
+      const root = document.documentElement;
+      return (
+        Math.max(root.scrollWidth, document.body.scrollWidth) - root.clientWidth
+      );
+    });
+
+    expect(
+      overflowPixels,
+      `${width}px meal navigator horizontal overflow`,
+    ).toBeLessThanOrEqual(1);
+  });
+}
+
+test("날짜 미확인 식단 navigator click은 hash, focus, 현재 위치를 갱신한다", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   await page.goto("/");
 
-  const quickNav = page.getByRole("navigation", { name: "페이지 바로가기" });
-  const noticeLink = quickNav.getByRole("link", { name: "안내", exact: true });
-  const weeklyLink = quickNav.getByRole("link", {
-    name: "식단 보기",
-    exact: true,
+  const mealNav = page.getByRole("navigation", {
+    name: "사진 순서 바로가기",
+  });
+  const fourthLink = mealNav.locator('a[href="#meal-slot-4"]');
+
+  await expect(mealNav).toBeVisible();
+  await fourthLink.click();
+
+  await expect(page).toHaveURL(/#meal-slot-4$/);
+  await expect(page.locator("#meal-slot-4")).toBeFocused();
+  await expect(page.locator("#meal-slot-4")).toHaveAccessibleName("식단 4");
+  await page.waitForTimeout(250);
+  await expect(fourthLink).toHaveAttribute("aria-current", "location");
+  await expect(mealNav.locator('a[aria-current="location"]')).toHaveCount(1);
+});
+
+test("날짜 미확인 식단 navigator는 스크롤 위치를 반영한다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto("/");
+
+  const mealNav = page.getByRole("navigation", {
+    name: "사진 순서 바로가기",
+  });
+  const secondLink = mealNav.locator('a[href="#meal-slot-2"]');
+
+  await page.locator("#meal-slot-2").evaluate((mealCard) => {
+    mealCard.scrollIntoView({ block: "center" });
   });
 
-  await expect(quickNav).toBeVisible();
-  await expect(quickNav.getByRole("link")).toHaveCount(2);
-  await expect(noticeLink).toHaveAttribute("href", "#meal-data-notice");
-  await expect(weeklyLink).toHaveAttribute("href", "#weekly-section");
-  await expect(noticeLink).toHaveAttribute("aria-current", "location");
-
-  await weeklyLink.click();
-
-  await expect(page).toHaveURL(/#weekly-section$/);
-  await expect(page.locator("#weekly-section")).toBeFocused();
-  await expect(weeklyLink).toHaveAttribute("aria-current", "location");
-  await expect(noticeLink).not.toHaveAttribute("aria-current", "location");
-
-  const getWeeklySectionTop = () =>
-    page
-      .locator("#weekly-section")
-      .evaluate((section) => section.getBoundingClientRect().top);
-
-  await expect.poll(getWeeklySectionTop).toBeLessThan(80);
-
-  const weeklySectionTop = await getWeeklySectionTop();
-  expect(weeklySectionTop).toBeGreaterThanOrEqual(0);
-
-  await noticeLink.click();
-
-  await expect(page).toHaveURL(/#meal-data-notice$/);
-  await expect(page.locator("#meal-data-notice")).toBeFocused();
-  await expect(noticeLink).toHaveAttribute("aria-current", "location");
-  await expect(weeklyLink).not.toHaveAttribute("aria-current", "location");
+  await expect(secondLink).toHaveAttribute("aria-current", "location");
+  await expect(mealNav.locator('a[aria-current="location"]')).toHaveCount(1);
 });
+
+for (const width of [768, 1440] as const) {
+  test(`${width}px desktop에서는 식단 navigator를 sticky rail로 표시한다`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+
+    const mealNav = page.getByRole("navigation", {
+      name: "사진 순서 바로가기",
+    });
+
+    await expect(mealNav).toBeVisible();
+    await expect(mealNav.getByRole("link")).toHaveCount(
+      UNVERIFIED_MEAL_NAV_ITEMS.length,
+    );
+
+    const hasStickyContainer = await mealNav.evaluate((navigator) => {
+      let element: Element | null = navigator;
+
+      while (element) {
+        if (getComputedStyle(element).position === "sticky") {
+          return true;
+        }
+
+        element = element.parentElement;
+      }
+
+      return false;
+    });
+    expect(hasStickyContainer).toBe(true);
+
+    const overflowPixels = await page.evaluate(() => {
+      const root = document.documentElement;
+      return (
+        Math.max(root.scrollWidth, document.body.scrollWidth) - root.clientWidth
+      );
+    });
+    expect(overflowPixels).toBeLessThanOrEqual(1);
+  });
+}
