@@ -33,7 +33,7 @@ export interface WeeklyMeal {
 }
 
 /**
- * 사용자가 제공한 식단표 사진을 판독한 데이터입니다.
+ * 식단표 사진에서 확인한 데이터입니다.
  * 흐릿한 글자는 menuItems에 추측해 넣지 않고 uncertainTexts에 기록합니다.
  */
 export const weeklyMeal: WeeklyMeal = {
