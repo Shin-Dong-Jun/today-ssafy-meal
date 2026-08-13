@@ -21,8 +21,6 @@ function App() {
       </a>
 
       <SiteHeader
-        currentDate={currentDate}
-        todayKey={todayKey}
         updatedAt={weeklyMeal.updatedAt}
       />
 
@@ -37,36 +35,58 @@ function App() {
       )}
 
       <main id="main-content">
-        <div className="content-layout">
-          <div className="today-column">
-            <TodayMeal
-              currentDate={currentDate}
-              todayKey={todayKey}
-              meal={todayMeal}
-              isWeekend={isSeoulWeekend(currentDate)}
-            />
+        <div className="main-container">
+          <TodayMeal
+            currentDate={currentDate}
+            todayKey={todayKey}
+            meal={todayMeal}
+            weekMeals={weekdayMeals}
+            isWeekend={isSeoulWeekend(currentDate)}
+          />
 
-            {weeklyMeal.sourceNotes.length > 0 && (
-              <aside className="source-note" aria-label="식단표 원본 판독 안내">
-                <p className="source-note-heading">
-                  <span>식단표 원본 판독 안내</span>
-                  <span className="source-note-count">
-                    {weeklyMeal.sourceNotes.length}건
-                  </span>
-                </p>
-                <ul>
-                  {weeklyMeal.sourceNotes.map((note) => (
-                    <li key={note}>{note}</li>
-                  ))}
-                </ul>
-              </aside>
-            )}
-          </div>
+          {weeklyMeal.sourceNotes.length > 0 && (
+            <aside
+              className="source-note"
+              id="source-notes"
+              aria-label="식단표 원본 판독 안내"
+            >
+              <p className="source-note-heading">
+                <span>식단표 원본 판독 안내</span>
+                <span className="source-note-count">
+                  {weeklyMeal.sourceNotes.length}건
+                </span>
+              </p>
+              <ul>
+                {weeklyMeal.sourceNotes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </aside>
+          )}
+
           <WeeklyMeals meals={weekdayMeals} todayKey={todayKey} />
         </div>
       </main>
 
-      <footer>
+      <nav className="mobile-quick-nav" aria-label="페이지 바로가기">
+        <a href="#today-heading" aria-current="page">
+          <span aria-hidden="true" />
+          오늘
+        </a>
+        <a href="#weekly-heading">
+          <span aria-hidden="true" />
+          이번 주
+        </a>
+        {weeklyMeal.sourceNotes.length > 0 && (
+          <a href="#source-notes">
+            <span aria-hidden="true" />
+            판독 안내
+          </a>
+        )}
+      </nav>
+
+      <footer className="site-footer">
+        <strong>오늘 싸피밥</strong>
         <p>
           SSAFY 공식 서비스가 아닌 대전캠퍼스 교육생 개인 제작 서비스입니다.
         </p>

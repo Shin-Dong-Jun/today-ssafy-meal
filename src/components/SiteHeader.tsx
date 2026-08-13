@@ -1,28 +1,24 @@
-import { formatCurrentDate, formatUpdatedAt } from "../utils/date";
+import { formatUpdatedAt } from "../utils/date";
 
 interface SiteHeaderProps {
-  currentDate: Date;
-  todayKey: string;
   updatedAt: string;
 }
 
-export function SiteHeader({
-  currentDate,
-  todayKey,
-  updatedAt,
-}: SiteHeaderProps) {
+export function SiteHeader({ updatedAt }: SiteHeaderProps) {
   return (
     <header className="site-header">
-      <div className="brand-lockup">
-        <p className="campus-label">SSAFY 대전캠퍼스</p>
-        <h1>오늘 싸피밥</h1>
-      </div>
+      <div className="site-header-inner">
+        <div className="brand-lockup">
+          <h1>오늘 싸피밥</h1>
+          <span className="campus-badge">대전캠퍼스</span>
+        </div>
 
-      <div className="header-date">
-        <span className="header-date-label">오늘</span>
-        <time className="header-today" dateTime={todayKey}>
-          {formatCurrentDate(currentDate)}
-        </time>
+        <nav className="desktop-primary-nav" aria-label="주요 메뉴">
+          <a href="#main-content" aria-current="page">
+            식단표
+          </a>
+        </nav>
+
         <p className="update-time">
           <span>마지막 업데이트</span>
           <time dateTime={updatedAt}>{formatUpdatedAt(updatedAt)}</time>

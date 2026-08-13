@@ -1,11 +1,16 @@
 import { getDailyMenuItems, type DailyMeal } from "../data/meals";
 import { assessProtein } from "../utils/assessProtein";
-import { formatCurrentDate, formatMealDate } from "../utils/date";
+import {
+  DAY_OF_WEEK_LABELS,
+  formatCurrentDate,
+  formatMealDate,
+} from "../utils/date";
 
 interface TodayMealProps {
   currentDate: Date;
   todayKey: string;
   meal?: DailyMeal;
+  weekMeals: DailyMeal[];
   isWeekend: boolean;
 }
 
@@ -13,6 +18,7 @@ export function TodayMeal({
   currentDate,
   todayKey,
   meal,
+  weekMeals,
   isWeekend,
 }: TodayMealProps) {
   const menuItems = meal ? getDailyMenuItems(meal) : [];
@@ -24,20 +30,44 @@ export function TodayMeal({
     assessment.matchedMenuItems.length > 0
       ? assessment.matchedMenuItems
       : assessment.possibleMenuItems;
+  const matchedProteinItems = new Set(assessment.matchedMenuItems);
 
   return (
     <section className="today-section" aria-labelledby="today-heading">
       <div className="section-heading-row">
         <div>
-          <p className="section-kicker">Today · Lunch</p>
-          <h2 id="today-heading">오늘의 점심</h2>
+          <p className="section-kicker">점심</p>
+          <h2 id="today-heading">오늘의 메뉴</h2>
         </div>
-        {meal && !isWeekend && (
-          <time className="section-date" dateTime={meal.date}>
-            {formatMealDate(meal.date, meal.dayOfWeek)}
-          </time>
-        )}
+        <time className="section-date" dateTime={meal?.date ?? todayKey}>
+          {meal && !isWeekend
+            ? formatMealDate(meal.date, meal.dayOfWeek)
+            : formatCurrentDate(currentDate)}
+        </time>
       </div>
+
+      <ol className="weekday-strip" aria-label="이번 주 평일 날짜">
+        {weekMeals.map((weekdayMeal) => {
+          const [, , day] = weekdayMeal.date.split("-").map(Number);
+          const isToday = weekdayMeal.date === todayKey;
+
+          return (
+            <li
+              className={
+                isToday ? "weekday-chip weekday-chip--today" : "weekday-chip"
+              }
+              key={weekdayMeal.date}
+              aria-current={isToday ? "date" : undefined}
+            >
+              <time dateTime={weekdayMeal.date}>
+                <span>{DAY_OF_WEEK_LABELS[weekdayMeal.dayOfWeek].slice(0, 1)}</span>
+                <strong>{day}</strong>
+                {isToday && <i aria-hidden="true" />}
+              </time>
+            </li>
+          );
+        })}
+      </ol>
 
       <div className="today-card">
         {isWeekend ? (
@@ -62,18 +92,28 @@ export function TodayMeal({
               {meal.mealOptions.map((option, optionIndex) => (
                 <section className="today-menu-group" key={option.label}>
                   <header className="menu-group-heading">
-                    <span aria-hidden="true">
-                      {String(optionIndex + 1).padStart(2, "0")}
-                    </span>
+                    <span>메뉴 {String.fromCharCode(65 + optionIndex)}</span>
                     <h3>{option.label}</h3>
                   </header>
                   <ul className="today-menu-list">
-                    {option.menuItems.map((item, itemIndex) => (
-                      <li key={`${option.label}-${itemIndex}`}>
-                        <span className="menu-item-marker" aria-hidden="true" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
+                    {option.menuItems.map((item, itemIndex) => {
+                      const isProteinItem = matchedProteinItems.has(item);
+
+                      return (
+                        <li
+                          className={
+                            isProteinItem ? "is-protein-item" : undefined
+                          }
+                          key={`${option.label}-${itemIndex}`}
+                        >
+                          <span
+                            className="menu-item-marker"
+                            aria-hidden="true"
+                          />
+                          <span>{item}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </section>
               ))}

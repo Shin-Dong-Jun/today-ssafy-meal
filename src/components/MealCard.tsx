@@ -25,7 +25,7 @@ export function MealCard({ meal, isToday }: MealCardProps) {
             </span>
           </time>
         </h3>
-        {isToday && <span className="card-today-label">Today</span>}
+        {isToday && <span className="card-today-label">오늘</span>}
       </header>
 
       <div className="meal-card-body">
