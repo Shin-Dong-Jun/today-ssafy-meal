@@ -46,20 +46,6 @@ export function MealCard({ meal, isToday }: MealCardProps) {
         ) : (
           <p className="meal-empty">등록된 식단이 없어요</p>
         )}
-
-        {meal.uncertainTexts.length > 0 && (
-          <details className="uncertainty-note">
-            <summary>
-              사진 판독 확인이 필요한 내용
-              <span>{meal.uncertainTexts.length}</span>
-            </summary>
-            <ul>
-              {meal.uncertainTexts.map((text) => (
-                <li key={text}>{text}</li>
-              ))}
-            </ul>
-          </details>
-        )}
       </div>
     </article>
   );

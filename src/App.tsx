@@ -63,26 +63,6 @@ function App() {
             isWeekend={isSeoulWeekend(currentDate)}
           />
 
-          {weeklyMeal.sourceNotes.length > 0 && (
-            <aside
-              className="source-note"
-              id="source-notes"
-              aria-label="식단표 원본 판독 안내"
-            >
-              <p className="source-note-heading">
-                <span>식단표 원본 판독 안내</span>
-                <span className="source-note-count">
-                  {weeklyMeal.sourceNotes.length}건
-                </span>
-              </p>
-              <ul>
-                {weeklyMeal.sourceNotes.map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
-            </aside>
-          )}
-
           <WeeklyMeals meals={weekdayMeals} todayKey={todayKey} />
         </div>
       </main>
@@ -96,12 +76,6 @@ function App() {
           <span aria-hidden="true" />
           이번 주
         </a>
-        {weeklyMeal.sourceNotes.length > 0 && (
-          <a href="#source-notes">
-            <span aria-hidden="true" />
-            판독 안내
-          </a>
-        )}
       </nav>
 
       <footer className="site-footer">
