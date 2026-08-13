@@ -2,32 +2,32 @@ import { formatCurrentDate, formatUpdatedAt } from "../utils/date";
 
 interface SiteHeaderProps {
   currentDate: Date;
+  todayKey: string;
   updatedAt: string;
 }
 
-export function SiteHeader({ currentDate, updatedAt }: SiteHeaderProps) {
+export function SiteHeader({
+  currentDate,
+  todayKey,
+  updatedAt,
+}: SiteHeaderProps) {
   return (
     <header className="site-header">
-      <p className="eyebrow">SSAFY DAEJEON · LUNCH</p>
-      <h1>오늘 싸피밥</h1>
-      <p className="service-description">SSAFY 대전캠퍼스 이번 주 점심</p>
+      <div className="brand-lockup">
+        <p className="campus-label">SSAFY 대전캠퍼스</p>
+        <h1>오늘 싸피밥</h1>
+      </div>
 
-      <dl className="date-summary">
-        <div>
-          <dt>오늘</dt>
-          <dd>
-            <time dateTime={currentDate.toISOString()}>
-              {formatCurrentDate(currentDate)}
-            </time>
-          </dd>
-        </div>
-        <div>
-          <dt>마지막 업데이트</dt>
-          <dd>
-            <time dateTime={updatedAt}>{formatUpdatedAt(updatedAt)}</time>
-          </dd>
-        </div>
-      </dl>
+      <div className="header-date">
+        <span className="header-date-label">오늘</span>
+        <time className="header-today" dateTime={todayKey}>
+          {formatCurrentDate(currentDate)}
+        </time>
+        <p className="update-time">
+          <span>마지막 업데이트</span>
+          <time dateTime={updatedAt}>{formatUpdatedAt(updatedAt)}</time>
+        </p>
+      </div>
     </header>
   );
 }
