@@ -1,4 +1,4 @@
-import type { DailyMeal } from "../data/meals";
+import { getDailyMenuItems, type DailyMeal } from "../data/meals";
 import { formatMealDate } from "../utils/date";
 
 interface MealCardProps {
@@ -7,6 +7,8 @@ interface MealCardProps {
 }
 
 export function MealCard({ meal, isToday }: MealCardProps) {
+  const menuItems = getDailyMenuItems(meal);
+
   return (
     <article
       className={`meal-card${isToday ? " meal-card--today" : ""}`}
@@ -21,12 +23,19 @@ export function MealCard({ meal, isToday }: MealCardProps) {
         {isToday && <span className="card-today-label">오늘</span>}
       </header>
 
-      {meal.menuItems.length > 0 ? (
-        <ul className="weekly-menu-list">
-          {meal.menuItems.map((item) => (
-            <li key={item}>{item}</li>
+      {menuItems.length > 0 ? (
+        <div className="weekly-menu-groups">
+          {meal.mealOptions.map((option) => (
+            <section className="weekly-menu-group" key={option.label}>
+              <h4>{option.label}</h4>
+              <ul className="weekly-menu-list">
+                {option.menuItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       ) : (
         <p className="meal-empty">등록된 식단이 없어요</p>
       )}

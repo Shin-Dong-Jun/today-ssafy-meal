@@ -135,6 +135,26 @@ main {
   gap: 48px;
 }
 
+.source-note {
+  padding: 14px 16px;
+  color: #5f4916;
+  background: #fff7db;
+  border: 1px solid #e6d18b;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.source-note strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.source-note ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
 .section-heading-row,
 .weekly-heading {
   display: flex;
@@ -196,6 +216,25 @@ h2 {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.today-menu-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.today-menu-group h3,
+.weekly-menu-group h4 {
+  margin: 0 0 9px;
+  color: #587064;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+}
+
+.today-menu-group + .today-menu-group {
+  padding-top: 18px;
+  border-top: 1px dashed #d7e2d4;
 }
 
 .today-menu-list {
@@ -334,6 +373,16 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 14px;
+}
+
+.weekly-menu-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.weekly-menu-group + .weekly-menu-group {
+  padding-top: 13px;
+  border-top: 1px dashed #d9e2d7;
 }
 
 .weekly-menu-list li {

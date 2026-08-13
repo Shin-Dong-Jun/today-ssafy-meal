@@ -1,4 +1,4 @@
-import type { DailyMeal } from "../data/meals";
+import { getDailyMenuItems, type DailyMeal } from "../data/meals";
 import { assessProtein } from "../utils/assessProtein";
 import { formatMealDate } from "../utils/date";
 
@@ -8,8 +8,9 @@ interface TodayMealProps {
 }
 
 export function TodayMeal({ meal, isWeekend }: TodayMealProps) {
+  const menuItems = meal ? getDailyMenuItems(meal) : [];
   const assessment = assessProtein(
-    meal?.menuItems ?? [],
+    menuItems,
     meal?.uncertainTexts ?? [],
   );
   const proteinItems =
@@ -33,7 +34,7 @@ export function TodayMeal({ meal, isWeekend }: TodayMealProps) {
             <strong>오늘은 등록된 점심 식단이 없어요</strong>
             <p>아래에서 이번 주 식단을 다시 확인할 수 있어요.</p>
           </div>
-        ) : !meal || meal.menuItems.length === 0 ? (
+        ) : !meal || menuItems.length === 0 ? (
           <div className="empty-state">
             <strong>오늘 식단이 아직 등록되지 않았어요</strong>
             <p>식단표가 확인되면 정적 데이터를 업데이트할 예정이에요.</p>
@@ -45,11 +46,18 @@ export function TodayMeal({ meal, isWeekend }: TodayMealProps) {
                 {formatMealDate(meal.date, meal.dayOfWeek)}
               </time>
             </p>
-            <ul className="today-menu-list" aria-label="오늘 메뉴">
-              {meal.menuItems.map((item) => (
-                <li key={item}>{item}</li>
+            <div className="today-menu-groups">
+              {meal.mealOptions.map((option) => (
+                <section className="today-menu-group" key={option.label}>
+                  <h3>{option.label}</h3>
+                  <ul className="today-menu-list" aria-label={option.label}>
+                    {option.menuItems.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
               ))}
-            </ul>
+            </div>
 
             <div className="protein-summary">
               <p
