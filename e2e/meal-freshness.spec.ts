@@ -112,3 +112,36 @@ test("현재 주에는 freshness badge를 추가하지 않는다", async ({ page
   await expect(page.locator(".weekday-strip")).toBeVisible();
   await expect(page.getByRole("heading", { name: "이번 주 식단" })).toBeVisible();
 });
+
+test("검증된 현재 주 quick nav는 오늘과 이번 주 식단으로 이동한다", async ({
+  page,
+}) => {
+  await page.clock.setFixedTime(new Date("2026-08-13T12:00:00+09:00"));
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/");
+
+  const quickNav = page.getByRole("navigation", { name: "페이지 바로가기" });
+  const todayLink = quickNav.getByRole("link", { name: "오늘", exact: true });
+  const weeklyLink = quickNav.getByRole("link", {
+    name: "이번 주",
+    exact: true,
+  });
+
+  await expect(todayLink).toHaveAttribute("href", "#today-section");
+  await expect(weeklyLink).toHaveAttribute("href", "#weekly-section");
+  await expect(todayLink).toHaveAttribute("aria-current", "location");
+
+  await weeklyLink.click();
+
+  await expect(page).toHaveURL(/#weekly-section$/);
+  await expect(page.locator("#weekly-section")).toBeFocused();
+  await expect(weeklyLink).toHaveAttribute("aria-current", "location");
+  await expect(todayLink).not.toHaveAttribute("aria-current", "location");
+
+  await todayLink.click();
+
+  await expect(page).toHaveURL(/#today-section$/);
+  await expect(page.locator("#today-section")).toBeFocused();
+  await expect(todayLink).toHaveAttribute("aria-current", "location");
+  await expect(weeklyLink).not.toHaveAttribute("aria-current", "location");
+});

@@ -25,6 +25,7 @@ export function WeeklyMeals({
       id="weekly-section"
       className="weekly-section"
       aria-labelledby="weekly-heading"
+      tabIndex={-1}
     >
       <div className="weekly-heading">
         <div>
@@ -36,14 +37,16 @@ export function WeeklyMeals({
                   ? "예정 식단"
                   : "이번 주 식단"
               : dataStatus === "SAMPLE"
-                ? "샘플 식단"
-                : "사진 판독 식단"}
+                ? "화면 예시 식단"
+                : "사진에서 읽은 메뉴"}
           </h2>
         </div>
         <p>
           {isDateVerified
             ? `평일 ${meals.length}일`
-            : `식단 ${meals.length}개`}
+            : dataStatus === "SAMPLE"
+              ? `예시 ${meals.length}개`
+              : `메뉴 묶음 ${meals.length}개`}
         </p>
       </div>
 

@@ -28,7 +28,11 @@ export default defineConfig({
     },
     {
       name: "verified-dev",
-      testMatch: ["**/meal-decision.spec.ts", "**/meal-freshness.spec.ts"],
+      testMatch: [
+        "**/meal-decision.spec.ts",
+        "**/meal-freshness.spec.ts",
+        "**/responsive.spec.ts",
+      ],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: "http://127.0.0.1:4174",
