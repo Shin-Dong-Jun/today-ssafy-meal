@@ -15,7 +15,9 @@ SSAFY 대전캠퍼스 교육생이 휴대전화에서 오늘 점심과 현재 �
 - CSS
 - Vitest
 - ESLint
-- Vercel 정적 배포
+- Playwright
+- GitHub Actions
+- Netlify 정적 배포
 
 백엔드 서버, 데이터베이스, 인증 기능을 사용하지 않는 정적 웹사이트입니다.
 
@@ -55,6 +57,19 @@ npm run test:e2e
 빌드 결과물은 `dist/`에 생성됩니다.
 Pull Request와 `main` Push에서는 GitHub Actions가 위 검사를 자동 실행합니다.
 
+## 동적 사용자 경험
+
+별도 서버 없이 React의 클라이언트 상태와 브라우저 API만 사용합니다.
+
+- A/B 메뉴 룰렛의 결과를 `localStorage`에 저장해 새로고침 후에도 복원합니다.
+- 선택은 서울 기준 오늘 날짜와 현재 식단의 `updatedAt`이 모두 일치할 때만
+  유효합니다. 자정이 지나거나 식단이 갱신되면 자동으로 폐기합니다.
+- Web Share API를 지원하는 환경에서는 오늘의 픽을 공유하고, 지원하지 않으면
+  클립보드 복사를 시도합니다.
+- 탭을 오래 열어 둬도 서울 자정, 탭 재노출, 브라우저 포커스 시 현재 날짜를
+  다시 계산합니다.
+- 룰렛과 결과 전환은 `prefers-reduced-motion` 설정을 존중합니다.
+
 ## 매주 식단 데이터 갱신
 
 식단 데이터는 [`src/data/meals.ts`](src/data/meals.ts) 한 곳에서 관리합니다.
@@ -83,15 +98,11 @@ Pull Request와 `main` Push에서는 GitHub Actions가 위 검사를 자동 실�
 샘플 데이터를 사용할 때는 반드시 `isSample: true` 상태를 유지합니다. 실제
 식단표를 반영하지 않은 채 이 값을 `false`로 바꾸면 안 됩니다.
 
-## Vercel 무료 배포
+## Netlify 배포
 
-1. 이 프로젝트를 본인의 GitHub 등 Git 저장소에 올립니다.
-2. [Vercel](https://vercel.com/)에서 `Add New Project`를 선택하고 저장소를
-   가져옵니다.
-3. Framework Preset은 `Vite`로 설정합니다.
-4. Build Command는 `npm run build`, Output Directory는 `dist`를 사용합니다.
-5. 별도 환경 변수 없이 `Deploy`를 실행합니다.
-6. 이후 식단 데이터를 수정해 기본 브랜치에 반영하면 Vercel이 새 정적 빌드를
-   자동 배포합니다.
+운영 사이트는 [Netlify](https://ssafy-daejeon-meal.netlify.app/)에서 제공합니다.
+Pull Request에는 Deploy Preview가 생성되고, `main`에 병합되면 production 배포가
+자동으로 실행됩니다. Build Command는 `npm run build`, Publish Directory는
+`dist`이며 별도 환경 변수는 필요하지 않습니다.
 
 이 프로젝트에는 서버나 비밀 환경 변수가 필요하지 않습니다.

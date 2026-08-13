@@ -2,6 +2,8 @@ import type { DailyMeal, DayOfWeek, WeeklyMeal } from "../data/meals";
 
 export const SEOUL_TIME_ZONE = "Asia/Seoul";
 
+const SEOUL_UTC_OFFSET_MS = 9 * 60 * 60 * 1000;
+
 export const DAY_OF_WEEK_LABELS: Record<DayOfWeek, string> = {
   MONDAY: "월요일",
   TUESDAY: "화요일",
@@ -53,6 +55,28 @@ export function getSeoulDateKey(date: Date = new Date()): string {
   }
 
   return `${year}-${month}-${day}`;
+}
+
+/**
+ * 주어진 시각부터 서울의 다음 자정까지 남은 시간을 계산합니다.
+ * 대한민국 표준시는 일광 절약 시간 없이 UTC+09:00으로 고정되어 있습니다.
+ */
+export function getMillisecondsUntilNextSeoulDay(date: Date): number {
+  const timestamp = date.getTime();
+
+  if (Number.isNaN(timestamp)) {
+    throw new RangeError("유효한 날짜로 서울 자정까지의 시간을 계산해야 합니다.");
+  }
+
+  const seoulTimestamp = timestamp + SEOUL_UTC_OFFSET_MS;
+  const seoulDate = new Date(seoulTimestamp);
+  const nextSeoulMidnight = Date.UTC(
+    seoulDate.getUTCFullYear(),
+    seoulDate.getUTCMonth(),
+    seoulDate.getUTCDate() + 1,
+  );
+
+  return nextSeoulMidnight - seoulTimestamp;
 }
 
 export function isSeoulWeekend(date: Date = new Date()): boolean {

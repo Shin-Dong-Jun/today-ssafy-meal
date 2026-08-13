@@ -2,6 +2,7 @@ import { SiteHeader } from "./components/SiteHeader";
 import { TodayMeal } from "./components/TodayMeal";
 import { WeeklyMeals } from "./components/WeeklyMeals";
 import { weeklyMeal } from "./data/meals";
+import { useSeoulCurrentDate } from "./hooks/useSeoulCurrentDate";
 import {
   buildWeekdayMealSlots,
   formatMealWeekRange,
@@ -11,7 +12,7 @@ import {
 } from "./utils/date";
 
 function App() {
-  const currentDate = new Date();
+  const currentDate = useSeoulCurrentDate();
   const todayKey = getSeoulDateKey(currentDate);
   const todayMeal = weeklyMeal.meals.find((meal) => meal.date === todayKey);
   const weekdayMeals = buildWeekdayMealSlots(weeklyMeal);
@@ -61,6 +62,7 @@ function App() {
             meal={todayMeal}
             weekMeals={weekdayMeals}
             isWeekend={isSeoulWeekend(currentDate)}
+            dataUpdatedAt={weeklyMeal.updatedAt}
           />
 
           <WeeklyMeals meals={weekdayMeals} todayKey={todayKey} />
