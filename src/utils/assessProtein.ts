@@ -38,9 +38,9 @@ export const PROTEIN_STATUS_LABELS: Record<
   ProteinAssessmentStatus,
   string
 > = {
-  FOUND: "단백질 식품 있음",
-  POSSIBLE: "일부 포함된 것으로 보임",
-  NOT_FOUND: "메뉴명에서 찾기 어려움",
+  FOUND: "관련 키워드 확인",
+  POSSIBLE: "불확실 문구에서 관련 키워드 확인",
+  NOT_FOUND: "관련 키워드 미확인",
 };
 
 export interface ProteinAssessment {
@@ -52,7 +52,13 @@ export interface ProteinAssessment {
 
 const includesProteinKeyword = (text: string) => {
   const normalizedText = text.normalize("NFC");
-  return PROTEIN_KEYWORDS.some((keyword) => normalizedText.includes(keyword));
+  const textWithoutSoybeanSprouts = normalizedText.replaceAll("콩나물", "");
+
+  return PROTEIN_KEYWORDS.some((keyword) =>
+    keyword === "콩"
+      ? textWithoutSoybeanSprouts.includes(keyword)
+      : normalizedText.includes(keyword),
+  );
 };
 
 const findMatches = (items: readonly string[]) =>
@@ -65,7 +71,8 @@ const findMatches = (items: readonly string[]) =>
   );
 
 /**
- * 메뉴명만 확인하는 보수적인 판정입니다.
+ * 메뉴명에서 미리 정의한 관련 키워드의 존재만 확인합니다.
+ * 영양 성분이나 실제 재료, 제공량은 추론하지 않습니다.
  * 확정 메뉴에서 키워드를 찾으면 FOUND, 읽기 불확실한 텍스트에서만 찾으면
  * POSSIBLE, 어느 쪽에서도 찾지 못하면 NOT_FOUND를 반환합니다.
  */

@@ -27,10 +27,12 @@ test("룰렛 선택을 저장하고 새로고침 후 복원·공유·취소한�
   await page.goto("/");
 
   await page.getByRole("button", { name: "룰렛 열기" }).click();
+  await expect(
+    page.getByRole("heading", { name: "오늘은 어디로 갈까요?" }),
+  ).toBeFocused();
   const spinButton = page.getByRole("button", {
     name: "룰렛 돌리고 저장하기",
   });
-  await expect(spinButton).toBeFocused();
   await spinButton.click();
 
   const decisionPanel = page.getByLabel("저장된 오늘의 메뉴 선택");
@@ -95,6 +97,7 @@ test("일반 모션에서는 회전 시간이 끝난 뒤 선택을 저장한다"
 test("회전 중 닫으면 완료 타이머를 취소하고 기존 선택을 유지한다", async ({
   page,
 }) => {
+  await page.clock.install({ time: THURSDAY_NOON_KST });
   await page.goto("/");
   await page.getByRole("button", { name: "룰렛 열기" }).click();
   await page
@@ -104,12 +107,19 @@ test("회전 중 닫으면 완료 타이머를 취소하고 기존 선택을 유
   await expect(page.getByLabel("저장된 오늘의 메뉴 선택")).toBeVisible();
 
   await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.evaluate(() => {
+    Math.random = () => 0.99;
+  });
   await page.getByRole("button", { name: "다시 고르기" }).click();
   await page
     .getByRole("button", { name: "새로 돌려서 저장하기" })
     .click();
   await page.getByRole("button", { name: "룰렛 닫기" }).click();
-  await page.waitForTimeout(1_900);
+  await expect(page.locator("#meal-roulette-dialog")).toHaveCount(0);
+  await expect(page.getByLabel("저장된 오늘의 메뉴 선택")).toContainText(
+    "메뉴 A · 메뉴 1 · 사진 상단",
+  );
+  await page.clock.runFor(1_900);
 
   await expect(page.getByLabel("저장된 오늘의 메뉴 선택")).toContainText(
     "메뉴 A · 메뉴 1 · 사진 상단",
@@ -213,6 +223,44 @@ test("공유 미지원 시 클립보드를 한 번만 시도하고 실패를 안
       () => (window as Window & { __clipboardAttempts?: number }).__clipboardAttempts,
     ),
   ).toBe(1);
+});
+
+test("360x568에서도 룰렛 제목에 초점을 두고 sheet 상단을 유지한다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 568 });
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "룰렛 열기" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "오늘은 어디로 갈까요?" }),
+  ).toBeFocused();
+  await expect(page.locator(".roulette-sheet")).toBeVisible();
+  expect(
+    await page.locator(".roulette-sheet").evaluate((sheet) => sheet.scrollTop),
+  ).toBe(0);
+});
+
+test("주말 자정 전환으로 룰렛 trigger가 사라져도 제목에 초점을 복원한다", async ({
+  page,
+}) => {
+  await page.clock.install({
+    time: new Date("2026-08-14T23:59:59.500+09:00"),
+  });
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "룰렛 열기" }).click();
+  await expect(
+    page.getByRole("heading", { name: "오늘은 어디로 갈까요?" }),
+  ).toBeFocused();
+
+  await page.clock.runFor(700);
+
+  await expect(page.locator("#meal-roulette-dialog")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "오늘의 메뉴" }),
+  ).toBeFocused();
 });
 
 test("서울 자정이 지나면 날짜를 갱신하고 전날 선택을 만료한다", async ({

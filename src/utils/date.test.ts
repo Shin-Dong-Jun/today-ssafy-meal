@@ -79,7 +79,7 @@ describe("서울 시간대 날짜 처리", () => {
         "2026-08-13T11:57:00+09:00",
         new Date("2026-08-13T18:00:00+09:00"),
       ),
-    ).toBe("오늘 오전 11:57 업데이트");
+    ).toBe("오늘 오전 11:57");
     expect(formatMealWeekRange("2026-08-31")).toBe(
       "8월 31일~9월 4일",
     );
@@ -89,7 +89,7 @@ describe("서울 시간대 날짜 처리", () => {
     const weekly: WeeklyMeal = {
       weekStart: "2026-08-17",
       updatedAt: "2026-08-17T09:00:00+09:00",
-      isSample: true,
+      status: "SAMPLE",
       sourceNotes: [],
       meals: [
         {

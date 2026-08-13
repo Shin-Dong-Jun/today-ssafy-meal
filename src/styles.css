@@ -12,7 +12,7 @@
   --color-surface-subtle: #f2f4f6;
   --color-ink: #191c1e;
   --color-ink-soft: #434655;
-  --color-muted: #7a8493;
+  --color-muted: #626c7a;
   --color-line: #e2e6ec;
   --color-line-strong: #c3c6d7;
   --color-primary: #2563eb;
@@ -25,6 +25,7 @@
   --color-possible: #7a5a24;
   --color-possible-soft: #f8efd9;
   --color-neutral-soft: #eceff2;
+  --color-focus: #174ea6;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -68,7 +69,8 @@ select {
   font: inherit;
 }
 
-button {
+button,
+summary {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -100,9 +102,7 @@ a {
   transform: translateY(-160%);
 }
 
-.skip-link:focus {
-  outline: 3px solid rgba(37, 99, 235, 0.35);
-  outline-offset: 2px;
+.skip-link:focus-visible {
   transform: translateY(0);
 }
 
@@ -259,6 +259,169 @@ a {
   color: #536786;
 }
 
+.meal-data-notice {
+  display: grid;
+  min-width: 0;
+  width: min(calc(100% - 40px), 1240px);
+  gap: var(--space-4);
+  margin: var(--space-4) auto 0;
+  padding: var(--space-4);
+  color: var(--color-ink-soft);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-strong);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgba(33, 45, 68, 0.04);
+}
+
+.meal-data-notice--date-verified {
+  border-left-color: var(--color-protein);
+}
+
+.meal-data-notice--date-unverified {
+  background: #fffaf0;
+  border-color: #e4bd73;
+  border-left-color: #b87108;
+}
+
+.meal-data-notice--sample {
+  background: var(--color-primary-soft);
+  border-color: #b7caf5;
+  border-left-color: var(--color-primary);
+}
+
+.meal-data-notice-heading {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.meal-data-notice-heading strong {
+  max-width: 48rem;
+  color: var(--color-ink);
+  font-size: 0.91rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.meal-data-status {
+  display: inline-flex;
+  min-height: 25px;
+  align-items: center;
+  padding: 4px 9px;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.meal-data-notice--date-verified .meal-data-status {
+  color: var(--color-protein);
+  background: var(--color-protein-soft);
+}
+
+.meal-data-notice--date-unverified .meal-data-status {
+  color: #754604;
+  background: #f8e8c8;
+}
+
+.meal-data-meta {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.meal-data-meta > div {
+  min-width: 0;
+}
+
+.meal-data-meta dt {
+  margin: 0 0 3px;
+  color: var(--color-muted);
+  font-size: 0.67rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.meal-data-meta dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 0.76rem;
+  font-weight: 650;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.meal-data-source-notes,
+.meal-uncertainty-details {
+  min-width: 0;
+  color: var(--color-ink-soft);
+  border-top: 1px solid var(--color-line);
+}
+
+.meal-data-notice--date-unverified .meal-data-source-notes {
+  border-top-color: #e8c98c;
+}
+
+.meal-data-source-notes summary,
+.meal-uncertainty-details summary {
+  min-width: 0;
+  min-height: 44px;
+  padding: 12px 2px;
+  color: var(--color-ink-soft);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.meal-data-source-notes ul,
+.meal-uncertainty-details ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 0 var(--space-3) 1.15rem;
+}
+
+.meal-data-source-notes li,
+.meal-uncertainty-details li {
+  min-width: 0;
+  padding-left: 2px;
+  color: var(--color-muted);
+  font-size: 0.74rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.meal-uncertainty-details {
+  margin-top: var(--space-4);
+  padding: 0 var(--space-3);
+  color: #754604;
+  background: #fffaf0;
+  border: 1px solid #e8c98c;
+  border-radius: var(--radius-sm);
+}
+
+.meal-uncertainty-details summary {
+  color: #754604;
+}
+
+.meal-uncertainty-details li {
+  color: #675536;
+}
+
 main {
   min-width: 0;
 }
@@ -281,6 +444,11 @@ main {
   display: flex;
   flex-direction: column;
   margin-inline: calc(var(--space-5) * -1);
+}
+
+.today-section,
+.weekly-section {
+  scroll-margin-top: var(--space-6);
 }
 
 .section-heading-row {
@@ -1078,6 +1246,42 @@ h2 {
   line-height: 1.65;
 }
 
+.empty-state.empty-state--verification {
+  min-height: 190px;
+  margin: var(--space-4) 0;
+  padding: var(--space-6);
+  background: #fffaf0;
+  border: 1px solid #e8c98c;
+  border-left: 4px solid #b87108;
+  border-radius: var(--radius-md);
+}
+
+.empty-state--verification strong {
+  color: #5f3a05;
+}
+
+.empty-state--verification p {
+  color: #675536;
+}
+
+.empty-state.empty-state--sample {
+  min-height: 190px;
+  margin: var(--space-4) 0;
+  padding: var(--space-6);
+  background: var(--color-primary-soft);
+  border: 1px solid #b7caf5;
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+}
+
+.empty-state--sample strong {
+  color: #254a96;
+}
+
+.empty-state--sample p {
+  color: #536786;
+}
+
 .weekly-section {
   margin-top: var(--space-6);
   margin-inline: calc(var(--space-5) * -1);
@@ -1211,10 +1415,12 @@ h2 {
 }
 
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+summary:focus-visible {
   border-radius: var(--radius-sm);
-  outline: 3px solid rgba(37, 99, 235, 0.3);
+  outline: 3px solid var(--color-focus);
   outline-offset: 3px;
+  box-shadow: 0 0 0 3px #ffffff;
 }
 
 @media (max-width: 767px) {
@@ -1299,18 +1505,20 @@ button:focus-visible {
   border-radius: 999px;
 }
 
-.mobile-quick-nav a[aria-current="page"] {
+.mobile-quick-nav a[aria-current] {
   color: var(--color-primary);
 }
 
-.mobile-quick-nav a[aria-current="page"] > span {
+.mobile-quick-nav a[aria-current] > span {
   background: var(--color-primary);
 }
 
 @media (hover: hover) {
   .desktop-primary-nav a:hover,
   .mobile-quick-nav a:hover,
-  .weekday-chip a:hover {
+  .weekday-chip a:hover,
+  .meal-data-source-notes summary:hover,
+  .meal-uncertainty-details summary:hover {
     color: var(--color-primary-dark);
   }
 
@@ -1421,6 +1629,23 @@ button:focus-visible {
   .sample-banner,
   .week-status-banner {
     margin-top: var(--space-5);
+  }
+
+  .meal-data-notice {
+    grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
+    align-items: center;
+    gap: var(--space-4) var(--space-8);
+    margin-top: var(--space-5);
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .meal-data-notice-heading {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .meal-data-source-notes {
+    grid-column: 1 / -1;
   }
 
   .main-container {

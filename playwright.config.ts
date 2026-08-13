@@ -12,7 +12,6 @@ export default defineConfig({
     ["html", { open: "never" }],
   ],
   use: {
-    baseURL: "http://127.0.0.1:4173",
     locale: "ko-KR",
     timezoneId: "Asia/Seoul",
     trace: "on-first-retry",
@@ -20,15 +19,36 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      name: "production-preview",
+      testIgnore: "**/meal-decision.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: "http://127.0.0.1:4173",
+      },
+    },
+    {
+      name: "verified-dev",
+      testMatch: "**/meal-decision.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: "http://127.0.0.1:4174",
+      },
     },
   ],
-  webServer: {
-    command:
-      "npm run preview -- --host 127.0.0.1 --port 4173 --strictPort",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: false,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command:
+        "npm run preview -- --host 127.0.0.1 --port 4173 --strictPort",
+      url: "http://127.0.0.1:4173",
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      command:
+        "npm run dev -- --mode e2e-verified --host 127.0.0.1 --port 4174 --strictPort",
+      url: "http://127.0.0.1:4174",
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+  ],
 });

@@ -163,7 +163,7 @@ export function formatUpdatedAtCompact(
   }).format(parsed);
 
   if (getSeoulDateKey(parsed) === getSeoulDateKey(currentDate)) {
-    return `오늘 ${time} 업데이트`;
+    return `오늘 ${time}`;
   }
 
   const date = new Intl.DateTimeFormat("ko-KR", {
@@ -173,7 +173,7 @@ export function formatUpdatedAtCompact(
     day: "numeric",
   }).format(parsed);
 
-  return `${date} ${time} 업데이트`;
+  return `${date} ${time}`;
 }
 
 export function formatMealWeekRange(weekStart: string): string {

@@ -141,6 +141,17 @@ export function validateWeeklyMeal(
 
   validateTextList(weekly.sourceNotes, "sourceNotes");
 
+  if (
+    weekly.status === "DATE_UNVERIFIED" &&
+    !weekly.sourceNotes.some(isNormalizedText)
+  ) {
+    addError(
+      "UNVERIFIED_DATE_REQUIRES_SOURCE_NOTES",
+      "sourceNotes",
+      "날짜 미확인 식단에는 근거와 한계를 sourceNotes에 기록해야 합니다.",
+    );
+  }
+
   const seenDates = new Set<string>();
 
   weekly.meals.forEach((meal, mealIndex) => {
