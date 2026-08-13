@@ -21,7 +21,7 @@ export function SiteHeader({ currentDate, updatedAt }: SiteHeaderProps) {
         </nav>
 
         <p className="update-time">
-          <span>마지막 업데이트</span>
+          <span>데이터 반영</span>
           <time dateTime={updatedAt}>
             {formatUpdatedAtCompact(updatedAt, currentDate)}
           </time>

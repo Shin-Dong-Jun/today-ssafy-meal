@@ -14,7 +14,7 @@ function createValidWeeklyMeal(): WeeklyMeal {
   return {
     weekStart: "2026-08-31",
     updatedAt: "2026-08-28T15:30:00+09:00",
-    isSample: true,
+    status: "SAMPLE",
     sourceNotes: [],
     meals: WEEKDAYS.map((dayOfWeek, index) => {
       const date = new Date(Date.UTC(2026, 7, 31 + index))
@@ -132,6 +132,23 @@ describe("주간 식단 invariant 검증", () => {
       "NON_SEOUL_OFFSET",
       "UNEXPECTED_OPTION_COUNT",
     ]);
+  });
+
+  it("날짜 미확인 식단에는 근거와 한계를 sourceNotes에 남긴다", () => {
+    const missingSourceNotes = createValidWeeklyMeal();
+    missingSourceNotes.status = "DATE_UNVERIFIED";
+    missingSourceNotes.sourceNotes = [];
+
+    const unverifiedDateMeal = createValidWeeklyMeal();
+    unverifiedDateMeal.status = "DATE_UNVERIFIED";
+    unverifiedDateMeal.sourceNotes = [
+      "확인 가능한 메뉴만 옮겼지만 날짜는 확인하지 못했습니다.",
+    ];
+
+    expect(errorCodes(missingSourceNotes)).toContain(
+      "UNVERIFIED_DATE_REQUIRES_SOURCE_NOTES",
+    );
+    expect(errorCodes(unverifiedDateMeal)).toEqual([]);
   });
 
   it("서로 다른 option 사이의 같은 메뉴명은 허용한다", () => {

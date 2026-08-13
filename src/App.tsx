@@ -1,7 +1,9 @@
+import { MealDataNotice } from "./components/MealDataNotice";
+import { MobileQuickNav } from "./components/MobileQuickNav";
 import { SiteHeader } from "./components/SiteHeader";
 import { TodayMeal } from "./components/TodayMeal";
 import { WeeklyMeals } from "./components/WeeklyMeals";
-import { weeklyMeal } from "./data/meals";
+import { weeklyMeal, type WeeklyMeal } from "./data/meals";
 import { useSeoulCurrentDate } from "./hooks/useSeoulCurrentDate";
 import {
   buildWeekdayMealSlots,
@@ -11,13 +13,20 @@ import {
   isSeoulWeekend,
 } from "./utils/date";
 
-function App() {
+interface AppProps {
+  mealData?: WeeklyMeal;
+}
+
+function App({ mealData = weeklyMeal }: AppProps) {
   const currentDate = useSeoulCurrentDate();
   const todayKey = getSeoulDateKey(currentDate);
-  const todayMeal = weeklyMeal.meals.find((meal) => meal.date === todayKey);
-  const weekdayMeals = buildWeekdayMealSlots(weeklyMeal);
-  const mealWeekStatus = getMealWeekStatus(weeklyMeal.weekStart, currentDate);
-  const mealWeekRange = formatMealWeekRange(weeklyMeal.weekStart);
+  const isDateVerified = mealData.status === "DATE_VERIFIED";
+  const todayMeal = isDateVerified
+    ? mealData.meals.find((meal) => meal.date === todayKey)
+    : undefined;
+  const weekdayMeals = buildWeekdayMealSlots(mealData);
+  const mealWeekStatus = getMealWeekStatus(mealData.weekStart, currentDate);
+  const mealWeekRange = formatMealWeekRange(mealData.weekStart);
 
   return (
     <div className="page-shell">
@@ -25,19 +34,11 @@ function App() {
         식단 내용으로 바로가기
       </a>
 
-      <SiteHeader currentDate={currentDate} updatedAt={weeklyMeal.updatedAt} />
+      <SiteHeader currentDate={currentDate} updatedAt={mealData.updatedAt} />
 
-      {weeklyMeal.isSample && (
-        <aside className="sample-banner" aria-label="샘플 식단 안내">
-          <span className="sample-banner-mark" aria-hidden="true" />
-          <div>
-            <strong>현재 화면은 샘플 식단입니다.</strong>
-            <span>실제 SSAFY 대전캠퍼스 식단이 아닙니다.</span>
-          </div>
-        </aside>
-      )}
+      <MealDataNotice weeklyMeal={mealData} currentDate={currentDate} />
 
-      {mealWeekStatus !== "CURRENT" && (
+      {isDateVerified && mealWeekStatus !== "CURRENT" && (
         <aside
           className={`week-status-banner week-status-banner--${mealWeekStatus.toLowerCase()}`}
           aria-label="식단 주차 안내"
@@ -62,23 +63,34 @@ function App() {
             meal={todayMeal}
             weekMeals={weekdayMeals}
             isWeekend={isSeoulWeekend(currentDate)}
-            dataUpdatedAt={weeklyMeal.updatedAt}
+            dataUpdatedAt={mealData.updatedAt}
+            dataStatus={mealData.status}
           />
 
-          <WeeklyMeals meals={weekdayMeals} todayKey={todayKey} />
+          <WeeklyMeals
+            meals={weekdayMeals}
+            todayKey={todayKey}
+            dataStatus={mealData.status}
+          />
         </div>
       </main>
 
-      <nav className="mobile-quick-nav" aria-label="페이지 바로가기">
-        <a href="#today-heading" aria-current="page">
-          <span aria-hidden="true" />
-          오늘
-        </a>
-        <a href="#weekly-heading">
-          <span aria-hidden="true" />
-          이번 주
-        </a>
-      </nav>
+      <MobileQuickNav
+        todayLabel={
+          isDateVerified
+            ? "오늘"
+            : mealData.status === "SAMPLE"
+              ? "샘플 안내"
+              : "확인 상태"
+        }
+        weeklyLabel={
+          isDateVerified
+            ? "이번 주"
+            : mealData.status === "SAMPLE"
+              ? "샘플 식단"
+              : "판독 식단"
+        }
+      />
 
       <footer className="site-footer">
         <strong>오늘 싸피밥</strong>

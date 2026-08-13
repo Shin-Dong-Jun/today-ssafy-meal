@@ -5,6 +5,11 @@ export type DayOfWeek =
   | "THURSDAY"
   | "FRIDAY";
 
+export type MealDataStatus =
+  | "DATE_VERIFIED"
+  | "DATE_UNVERIFIED"
+  | "SAMPLE";
+
 export interface MealOption {
   /** 사진에서 코너명이 확인되지 않으면 위치를 기준으로 임시 표시 */
   label: string;
@@ -26,7 +31,8 @@ export interface WeeklyMeal {
   weekStart: string;
   /** ISO 8601 형식. 대한민국 시각은 +09:00 오프셋을 권장 */
   updatedAt: string;
-  isSample: boolean;
+  /** 실제 날짜 확인 여부 또는 샘플 데이터 여부 */
+  status: MealDataStatus;
   /** 날짜나 표 구조처럼 한 주 전체에 적용되는 판독 주의사항 */
   sourceNotes: string[];
   meals: DailyMeal[];
@@ -39,9 +45,9 @@ export interface WeeklyMeal {
 export const weeklyMeal: WeeklyMeal = {
   weekStart: "2026-08-10",
   updatedAt: "2026-08-13T11:57:57+09:00",
-  isSample: false,
+  status: "DATE_UNVERIFIED",
   sourceNotes: [
-    "사진에 날짜 머리글이 보이지 않아 테스트를 위해 2026년 8월 10일부터 14일까지로 연결했습니다.",
+    "사진에서 날짜 머리글을 확인할 수 없어 배열 순서 보존용으로 2026년 8월 10일부터 14일까지의 임시 날짜를 사용했습니다. 화면에서는 특정 요일 식단으로 표시하지 않습니다.",
     "상단·하단 블록의 코너명이 잘려 있어 같은 날의 메뉴 1·메뉴 2로 표시했습니다.",
   ],
   meals: [

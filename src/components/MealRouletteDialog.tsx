@@ -38,14 +38,21 @@ export function MealRouletteDialog({
   const spinTimeoutRef = useRef<number | null>(null);
   const spinStartRotationRef = useRef(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const spinButtonRef = useRef<HTMLButtonElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
 
     if (dialog && !dialog.open) {
       dialog.showModal();
-      window.requestAnimationFrame(() => spinButtonRef.current?.focus());
+      window.requestAnimationFrame(() => {
+        titleRef.current?.focus({ preventScroll: true });
+
+        if (sheetRef.current) {
+          sheetRef.current.scrollTop = 0;
+        }
+      });
     }
 
     return () => {
@@ -132,11 +139,13 @@ export function MealRouletteDialog({
         }
       }}
     >
-      <div className="roulette-sheet">
+      <div className="roulette-sheet" ref={sheetRef}>
         <header className="roulette-header">
           <div>
             <p>A/B 메뉴 룰렛</p>
-            <h3 id="roulette-title">오늘은 어디로 갈까요?</h3>
+            <h3 id="roulette-title" ref={titleRef} tabIndex={-1}>
+              오늘은 어디로 갈까요?
+            </h3>
           </div>
           <button
             className="roulette-close"
@@ -198,7 +207,6 @@ export function MealRouletteDialog({
         <button
           className="roulette-spin-button"
           type="button"
-          ref={spinButtonRef}
           disabled={isSpinning}
           onClick={spinRoulette}
         >
