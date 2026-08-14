@@ -14,7 +14,6 @@ import {
 } from "../utils/date";
 import { MealDecisionPanel } from "./MealDecisionPanel";
 import { MealRouletteDialog } from "./MealRouletteDialog";
-import { MealUncertaintyDetails } from "./MealUncertaintyDetails";
 
 interface TodayMealProps {
   currentDate: Date;
@@ -50,14 +49,8 @@ export function TodayMeal({
     dataUpdatedAt,
   });
   const menuItems = verifiedMeal ? getDailyMenuItems(verifiedMeal) : [];
-  const assessment = assessProtein(
-    menuItems,
-    verifiedMeal?.uncertainTexts ?? [],
-  );
-  const proteinItems =
-    assessment.matchedMenuItems.length > 0
-      ? assessment.matchedMenuItems
-      : assessment.possibleMenuItems;
+  const assessment = assessProtein(menuItems);
+  const proteinItems = assessment.matchedMenuItems;
   const matchedProteinItems = new Set(assessment.matchedMenuItems);
   const selectableOptions =
     verifiedMeal?.mealOptions
@@ -128,7 +121,7 @@ export function TodayMeal({
             <p>
               {isSample
                 ? "화면 구성 확인용 데이터라 오늘 날짜와 연결하지 않았어요."
-                : "원본 사진에서 날짜를 확인할 수 없어 아래 메뉴를 특정 요일 식단으로 단정하지 않았어요."}
+                : "원본 사진에서 실제 날짜를 확인할 수 없어 아래 월~금 메뉴를 오늘 식단으로 단정하지 않았어요."}
             </p>
           </div>
         ) : !isCurrentWeek ? (
@@ -176,24 +169,36 @@ export function TodayMeal({
                         <span>메뉴 {String.fromCharCode(65 + optionIndex)}</span>
                         {isSelected && <strong>오늘의 픽</strong>}
                       </div>
-                      <h3>{option.label}</h3>
                     </header>
                     <ul className="today-menu-list">
                       {option.menuItems.map((item, itemIndex) => {
+                        const isRepresentativeItem =
+                          item === option.representativeMenuItem;
                         const isProteinItem = matchedProteinItems.has(item);
+                        const itemClassName = [
+                          isRepresentativeItem
+                            ? "is-representative-item"
+                            : "",
+                          isProteinItem ? "is-protein-item" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ");
 
                         return (
                           <li
-                            className={
-                              isProteinItem ? "is-protein-item" : undefined
-                            }
+                            className={itemClassName || undefined}
                             key={`${option.label}-${itemIndex}`}
                           >
                             <span
                               className="menu-item-marker"
                               aria-hidden="true"
                             />
-                            <span>{item}</span>
+                            <span className="menu-item-copy">
+                              {isRepresentativeItem && (
+                                <span className="main-menu-badge">메인</span>
+                              )}
+                              <span className="menu-item-text">{item}</span>
+                            </span>
                           </li>
                         );
                       })}
@@ -202,8 +207,6 @@ export function TodayMeal({
                 );
               })}
             </div>
-
-            <MealUncertaintyDetails texts={verifiedMeal.uncertainTexts} />
 
             {selectableOptions.length === 2 && (
               <MealDecisionPanel

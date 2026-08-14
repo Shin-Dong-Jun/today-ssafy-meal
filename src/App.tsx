@@ -33,6 +33,8 @@ function App({ mealData }: AppProps) {
   );
   const mealWeekStatus = getMealWeekStatus(mealData.weekStart, currentDate);
   const mealWeekRange = formatMealWeekRange(mealData.weekStart);
+  const shouldShowMealDataNotice =
+    !isDateVerified || mealWeekStatus !== "CURRENT";
   const mealNavigatorModel = useMemo(
     () =>
       buildMealNavigatorModel(mealData, mealWeekStatus, weekdayMeals),
@@ -47,11 +49,13 @@ function App({ mealData }: AppProps) {
 
       <SiteHeader currentDate={currentDate} updatedAt={mealData.updatedAt} />
 
-      <MealDataNotice
-        weeklyMeal={mealData}
-        currentDate={currentDate}
-        weekStatus={mealWeekStatus}
-      />
+      {shouldShowMealDataNotice && (
+        <MealDataNotice
+          weeklyMeal={mealData}
+          currentDate={currentDate}
+          weekStatus={mealWeekStatus}
+        />
+      )}
 
       <MealNavigator
         items={mealNavigatorModel.items}

@@ -91,9 +91,7 @@ export function MealDecisionPanel({
         </span>
         <p>
           <span>오늘의 픽</span>
-          <strong>
-            메뉴 {optionLetter} · {selectedOption.option.label}
-          </strong>
+          <strong>메뉴 {optionLetter}</strong>
           <small>이 기기에서 오늘 자정까지 기억해요.</small>
         </p>
       </div>

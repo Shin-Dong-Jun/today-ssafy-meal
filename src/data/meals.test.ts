@@ -15,6 +15,29 @@ describe("현재 주간 식단 데이터", () => {
     expect(result.errors).toEqual([]);
   });
 
+  it("제공자가 확인한 목·금 대표 음식과 날짜 배치를 유지한다", () => {
+    const thursdayMeal = weeklyMeal.meals.find(
+      ({ date }) => date === "2026-08-13",
+    );
+    const fridayMeal = weeklyMeal.meals.find(
+      ({ date }) => date === "2026-08-14",
+    );
+
+    expect(thursdayMeal?.mealOptions[1]).toMatchObject({
+      representativeMenuItem: "돼지갈비솥밥",
+      menuItems: expect.arrayContaining(["돼지갈비솥밥"]),
+    });
+    expect(fridayMeal?.mealOptions[0].representativeMenuItem).toBe(
+      "우거지해장국",
+    );
+    expect(fridayMeal?.mealOptions[1].representativeMenuItem).toBe(
+      "삼색온도토리묵국수",
+    );
+    expect(
+      fridayMeal?.mealOptions.flatMap(({ menuItems }) => menuItems),
+    ).not.toContain("돼지갈비솥밥");
+  });
+
   it.each([
     ["날짜 확인", e2eVerifiedMeal],
     ["날짜 미확인", e2eUnverifiedMeal],

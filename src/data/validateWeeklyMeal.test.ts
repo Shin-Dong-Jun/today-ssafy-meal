@@ -25,8 +25,16 @@ function createValidWeeklyMeal(): WeeklyMeal {
         date,
         dayOfWeek,
         mealOptions: [
-          { label: "메뉴 1", menuItems: [`메뉴 1-${index}`] },
-          { label: "메뉴 2", menuItems: [`메뉴 2-${index}`] },
+          {
+            label: "메뉴 1",
+            menuItems: [`메뉴 1-${index}`],
+            representativeMenuItem: `메뉴 1-${index}`,
+          },
+          {
+            label: "메뉴 2",
+            menuItems: [`메뉴 2-${index}`],
+            representativeMenuItem: null,
+          },
         ],
         uncertainTexts: [],
       };
@@ -76,6 +84,7 @@ describe("주간 식단 invariant 검증", () => {
     weekly.meals[0].mealOptions[0] = {
       label: " ",
       menuItems: [" "],
+      representativeMenuItem: null,
     };
 
     const codes = errorCodes(weekly);
@@ -108,8 +117,12 @@ describe("주간 식단 invariant 검증", () => {
     const weekly = createValidWeeklyMeal();
     weekly.sourceNotes = [" "];
     weekly.meals[0].mealOptions = [
-      { label: "메뉴", menuItems: ["김치", "김치"] },
-      { label: "메뉴", menuItems: [] },
+      {
+        label: "메뉴",
+        menuItems: ["김치", "김치"],
+        representativeMenuItem: "김치",
+      },
+      { label: "메뉴", menuItems: [], representativeMenuItem: null },
     ];
 
     const codes = errorCodes(weekly);
@@ -154,8 +167,16 @@ describe("주간 식단 invariant 검증", () => {
   it("서로 다른 option 사이의 같은 메뉴명은 허용한다", () => {
     const weekly = createValidWeeklyMeal();
     weekly.meals[0].mealOptions = [
-      { label: "메뉴 1", menuItems: ["포기김치"] },
-      { label: "메뉴 2", menuItems: ["포기김치"] },
+      {
+        label: "메뉴 1",
+        menuItems: ["포기김치"],
+        representativeMenuItem: "포기김치",
+      },
+      {
+        label: "메뉴 2",
+        menuItems: ["포기김치"],
+        representativeMenuItem: "포기김치",
+      },
     ];
 
     expect(errorCodes(weekly)).toEqual([]);
@@ -170,5 +191,44 @@ describe("주간 식단 invariant 검증", () => {
 
     expect(errorCodes(invalidHourBoundary)).toContain("INVALID_UPDATED_AT");
     expect(errorCodes(invalidMinute)).toContain("INVALID_UPDATED_AT");
+  });
+
+  it("대표 음식은 null이거나 같은 option의 정확한 메뉴명이면 허용한다", () => {
+    const weekly = createValidWeeklyMeal();
+    weekly.meals[0].mealOptions[0].representativeMenuItem = "메뉴 1-0";
+    weekly.meals[0].mealOptions[1].representativeMenuItem = null;
+
+    expect(errorCodes(weekly)).toEqual([]);
+  });
+
+  it.each(["", " ", "대표 음식 "])(
+    "비어 있거나 앞뒤 공백이 있는 대표 음식 '%s'을 거부한다",
+    (representativeMenuItem) => {
+      const weekly = createValidWeeklyMeal();
+      weekly.meals[0].mealOptions[0].representativeMenuItem =
+        representativeMenuItem;
+
+      expect(errorCodes(weekly)).toContain(
+        "INVALID_REPRESENTATIVE_MENU_ITEM",
+      );
+    },
+  );
+
+  it("다른 option에만 존재하는 메뉴는 대표 음식으로 허용하지 않는다", () => {
+    const weekly = createValidWeeklyMeal();
+    weekly.meals[0].mealOptions[0].representativeMenuItem = "메뉴 2-0";
+
+    expect(errorCodes(weekly)).toContain(
+      "REPRESENTATIVE_MENU_ITEM_NOT_FOUND",
+    );
+  });
+
+  it("메뉴명 변경 후 남은 stale 대표 음식 값을 거부한다", () => {
+    const weekly = createValidWeeklyMeal();
+    weekly.meals[0].mealOptions[0].menuItems = ["변경된 메뉴"];
+
+    expect(errorCodes(weekly)).toContain(
+      "REPRESENTATIVE_MENU_ITEM_NOT_FOUND",
+    );
   });
 });

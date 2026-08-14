@@ -105,7 +105,7 @@ export function buildMealDecisionShareText(
 
   return [
     `오늘 싸피밥 · ${dateLabel}`,
-    `메뉴 ${optionLetter} · ${option.label}`,
+    `메뉴 ${optionLetter}`,
     menuSummary,
     "#오늘싸피밥",
   ]

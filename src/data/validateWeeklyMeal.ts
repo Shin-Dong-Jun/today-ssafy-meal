@@ -237,6 +237,27 @@ export function validateWeeklyMeal(
 
       validateTextList(option.menuItems, `${optionPath}.menuItems`);
 
+      const representativeMenuItem = option.representativeMenuItem;
+
+      if (representativeMenuItem !== null) {
+        if (
+          typeof representativeMenuItem !== "string" ||
+          !isNormalizedText(representativeMenuItem)
+        ) {
+          addError(
+            "INVALID_REPRESENTATIVE_MENU_ITEM",
+            `${optionPath}.representativeMenuItem`,
+            "대표 음식은 비어 있지 않고 앞뒤 공백이 없는 메뉴명이어야 합니다.",
+          );
+        } else if (!option.menuItems.includes(representativeMenuItem)) {
+          addError(
+            "REPRESENTATIVE_MENU_ITEM_NOT_FOUND",
+            `${optionPath}.representativeMenuItem`,
+            "대표 음식은 같은 메뉴 option의 menuItems에 포함되어야 합니다.",
+          );
+        }
+      }
+
       const seenMenuItems = new Set<string>();
 
       option.menuItems.forEach((menuItem, menuItemIndex) => {

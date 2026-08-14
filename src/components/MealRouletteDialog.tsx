@@ -194,8 +194,7 @@ export function MealRouletteDialog({
             <p>
               저장된 선택은{" "}
               <strong>
-                메뉴 {String.fromCharCode(65 + selectedOption.optionIndex)} ·{" "}
-                {selectedOption.option.label}
+                메뉴 {String.fromCharCode(65 + selectedOption.optionIndex)}
               </strong>
               입니다.
             </p>
