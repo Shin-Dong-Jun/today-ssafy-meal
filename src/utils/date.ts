@@ -44,6 +44,43 @@ const WEEKDAY_OFFSETS: Record<string, number> = {
 
 export type MealWeekStatus = "CURRENT" | "PAST" | "FUTURE";
 
+export function normalizeKoreanDayPeriod(dayPeriod: string): string {
+  const normalizedDayPeriod = dayPeriod
+    .replaceAll(".", "")
+    .trim()
+    .toUpperCase();
+
+  if (normalizedDayPeriod === "AM") {
+    return "오전";
+  }
+
+  if (normalizedDayPeriod === "PM") {
+    return "오후";
+  }
+
+  return dayPeriod;
+}
+
+function formatKoreanDateTime(
+  date: Date,
+  options: Intl.DateTimeFormatOptions,
+): string {
+  return new Intl.DateTimeFormat("ko-KR", {
+    ...options,
+    timeZone: SEOUL_TIME_ZONE,
+    hour12: true,
+  })
+    .formatToParts(date)
+    .map((part) => {
+      if (part.type !== "dayPeriod") {
+        return part.value;
+      }
+
+      return normalizeKoreanDayPeriod(part.value);
+    })
+    .join("");
+}
+
 export function getSeoulDateKey(date: Date = new Date()): string {
   const parts = dateKeyFormatter.formatToParts(date);
   const year = parts.find((part) => part.type === "year")?.value;
@@ -136,14 +173,13 @@ export function formatUpdatedAt(updatedAt: string): string {
     return updatedAt;
   }
 
-  return new Intl.DateTimeFormat("ko-KR", {
-    timeZone: SEOUL_TIME_ZONE,
+  return formatKoreanDateTime(parsed, {
     year: "numeric",
     month: "long",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  }).format(parsed);
+  });
 }
 
 export function formatUpdatedAtCompact(
@@ -156,11 +192,10 @@ export function formatUpdatedAtCompact(
     return updatedAt;
   }
 
-  const time = new Intl.DateTimeFormat("ko-KR", {
-    timeZone: SEOUL_TIME_ZONE,
+  const time = formatKoreanDateTime(parsed, {
     hour: "numeric",
     minute: "2-digit",
-  }).format(parsed);
+  });
 
   if (getSeoulDateKey(parsed) === getSeoulDateKey(currentDate)) {
     return `오늘 ${time}`;

@@ -34,6 +34,13 @@ npm run dev
 
 터미널에 표시된 로컬 주소를 브라우저에서 엽니다.
 
+## 다른 PC에서 작업 재개
+
+SSAFY 교육장 Windows PC에서 처음 clone하거나 기존 작업을 이어갈 때는
+[`docs/work-session-handoff.md`](docs/work-session-handoff.md)의 안전한 동기화,
+Node.js 24, 전체 검증, PR·배포 체크리스트를 먼저 확인합니다. 문서에 적힌 과거
+commit보다 `git fetch --prune origin` 이후의 최신 `origin/main`을 우선합니다.
+
 ## 품질 검사
 
 ```bash

@@ -3,6 +3,7 @@ import type { WeeklyMeal } from "../data/meals";
 import {
   buildWeekdayMealSlots,
   formatMealWeekRange,
+  formatUpdatedAt,
   formatUpdatedAtCompact,
   getMillisecondsUntilNextSeoulDay,
   getMealWeekStatus,
@@ -10,6 +11,7 @@ import {
   getSeoulDateKey,
   getSeoulWeekStartKey,
   isSeoulWeekend,
+  normalizeKoreanDayPeriod,
 } from "./date";
 
 describe("서울 시간대 날짜 처리", () => {
@@ -80,9 +82,41 @@ describe("서울 시간대 날짜 처리", () => {
         new Date("2026-08-13T18:00:00+09:00"),
       ),
     ).toBe("오늘 오전 11:57");
+    expect(
+      formatUpdatedAtCompact(
+        "2026-08-13T21:07:00+09:00",
+        new Date("2026-08-13T22:00:00+09:00"),
+      ),
+    ).toBe("오늘 오후 9:07");
+    expect(formatUpdatedAt("2026-08-13T21:07:00+09:00")).toBe(
+      "2026년 8월 13일 오후 9:07",
+    );
+    expect(
+      formatUpdatedAtCompact(
+        "2026-08-13T00:05:00+09:00",
+        new Date("2026-08-13T22:00:00+09:00"),
+      ),
+    ).toBe("오늘 오전 12:05");
+    expect(
+      formatUpdatedAtCompact(
+        "2026-08-13T12:05:00+09:00",
+        new Date("2026-08-13T22:00:00+09:00"),
+      ),
+    ).toBe("오늘 오후 12:05");
     expect(formatMealWeekRange("2026-08-31")).toBe(
       "8월 31일~9월 4일",
     );
+  });
+
+  it.each([
+    ["AM", "오전"],
+    ["A.M.", "오전"],
+    ["PM", "오후"],
+    ["P.M.", "오후"],
+    ["오전", "오전"],
+    ["오후", "오후"],
+  ])("dayPeriod %s를 한국어로 정규화한다", (dayPeriod, expected) => {
+    expect(normalizeKoreanDayPeriod(dayPeriod)).toBe(expected);
   });
 
   it("누락된 요일을 빈 식단 슬롯으로 채운다", () => {
