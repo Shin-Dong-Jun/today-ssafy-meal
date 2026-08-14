@@ -6,7 +6,7 @@ import { buildMealNavigatorModel } from "./components/mealNavigatorModel";
 import { SiteHeader } from "./components/SiteHeader";
 import { TodayMeal } from "./components/TodayMeal";
 import { WeeklyMeals } from "./components/WeeklyMeals";
-import { weeklyMeal, type WeeklyMeal } from "./data/meals";
+import type { WeeklyMeal } from "./data/meals";
 import { useSeoulCurrentDate } from "./hooks/useSeoulCurrentDate";
 import {
   buildWeekdayMealSlots,
@@ -17,10 +17,10 @@ import {
 } from "./utils/date";
 
 interface AppProps {
-  mealData?: WeeklyMeal;
+  mealData: WeeklyMeal;
 }
 
-function App({ mealData = weeklyMeal }: AppProps) {
+function App({ mealData }: AppProps) {
   const currentDate = useSeoulCurrentDate();
   const todayKey = getSeoulDateKey(currentDate);
   const isDateVerified = mealData.status === "DATE_VERIFIED";
