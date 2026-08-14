@@ -95,7 +95,13 @@ describe("서울 시간대 날짜 처리", () => {
         {
           date: "2026-08-17",
           dayOfWeek: "MONDAY",
-          mealOptions: [{ label: "메뉴 1", menuItems: ["쌀밥"] }],
+          mealOptions: [
+            {
+              label: "메뉴 1",
+              menuItems: ["쌀밥"],
+              representativeMenuItem: null,
+            },
+          ],
           uncertainTexts: [],
         },
       ],

@@ -19,17 +19,42 @@ function buildModel(
 }
 
 describe("buildMealNavigatorModel", () => {
-  it("날짜 미확인 식단은 안내와 사진 순서 target만 만든다", () => {
+  it("날짜 미확인 식단은 실제 날짜 없이 월~금 target을 만든다", () => {
     const model = buildModel(e2eUnverifiedMeal, "CURRENT");
 
-    expect(model.ariaLabel).toBe("사진 순서 바로가기");
-    expect(model.items.map(({ targetId, label }) => ({ targetId, label }))).toEqual([
+    expect(model.ariaLabel).toBe("요일별 메뉴 바로가기");
+    expect(model.items).toEqual([
       { targetId: "meal-data-notice", label: "안내" },
-      { targetId: "meal-slot-1", label: "식단 1" },
-      { targetId: "meal-slot-2", label: "식단 2" },
-      { targetId: "meal-slot-3", label: "식단 3" },
-      { targetId: "meal-slot-4", label: "식단 4" },
-      { targetId: "meal-slot-5", label: "식단 5" },
+      {
+        targetId: "meal-slot-1",
+        label: "월",
+        desktopLabel: "월요일",
+        accessibleLabel: "월요일 메뉴, 날짜 숫자 미확인",
+      },
+      {
+        targetId: "meal-slot-2",
+        label: "화",
+        desktopLabel: "화요일",
+        accessibleLabel: "화요일 메뉴, 날짜 숫자 미확인",
+      },
+      {
+        targetId: "meal-slot-3",
+        label: "수",
+        desktopLabel: "수요일",
+        accessibleLabel: "수요일 메뉴, 날짜 숫자 미확인",
+      },
+      {
+        targetId: "meal-slot-4",
+        label: "목",
+        desktopLabel: "목요일",
+        accessibleLabel: "목요일 메뉴, 날짜 숫자 미확인",
+      },
+      {
+        targetId: "meal-slot-5",
+        label: "금",
+        desktopLabel: "금요일",
+        accessibleLabel: "금요일 메뉴, 날짜 숫자 미확인",
+      },
     ]);
   });
 

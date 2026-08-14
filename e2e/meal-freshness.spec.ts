@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+import {
+  E2E_VERIFIED_SOURCE_NOTE,
+  E2E_VERIFIED_UNCERTAIN_TEXT,
+} from "../src/data/fixtures/e2eVerifiedMeal";
+
 const VERIFIED_WEEK_RANGE = "8월 10일~14일";
 const VERIFIED_MEAL_NAV_ITEMS = [
   { label: "오늘", targetId: "today-section" },
@@ -60,8 +65,8 @@ test("지난 식단 안내를 기존 데이터 상태 카드에 통합한다", a
     };
   });
   expect(colors).toEqual({
-    background: "rgb(255, 250, 240)",
-    borderLeft: "rgb(184, 113, 8)",
+    background: "rgb(242, 244, 246)",
+    borderLeft: "rgb(98, 108, 122)",
   });
 
   const weeklySectionTop = await page
@@ -125,18 +130,75 @@ test("다음 주 식단도 같은 상태 카드의 정보 variant로 표시한�
   });
 });
 
-test("현재 주에는 freshness badge를 추가하지 않는다", async ({ page }) => {
+test("현재 주에는 식단 상태 안내를 표시하지 않는다", async ({ page }) => {
   await page.clock.setFixedTime(new Date("2026-08-13T12:00:00+09:00"));
   await page.goto("/");
 
-  const notice = page.locator(".meal-data-notice--date-verified");
-
-  await expect(notice).toBeVisible();
-  await expect(notice.locator(".meal-data-status")).toHaveText("날짜 확인");
-  await expect(notice.locator(".meal-data-freshness")).toHaveCount(0);
-  await expect(notice).not.toHaveClass(/meal-data-notice--(past|future)/);
+  await expect(page.locator("#meal-data-notice")).toHaveCount(0);
+  await expect(page.locator(".meal-data-freshness")).toHaveCount(0);
   await expect(page.locator(".weekday-strip")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "오늘의 메뉴" }),
+  ).toBeVisible();
   await expect(page.getByRole("heading", { name: "이번 주 식단" })).toBeVisible();
+  await expect(
+    page
+      .getByRole("navigation", { name: "식단 바로가기" })
+      .getByRole("link", { name: "오늘", exact: true }),
+  ).toHaveAttribute("href", "#today-section");
+  await expect(page.getByText(E2E_VERIFIED_SOURCE_NOTE)).toHaveCount(0);
+  await expect(page.getByText(E2E_VERIFIED_UNCERTAIN_TEXT)).toHaveCount(0);
+});
+
+test("대표 음식은 메인 배지와 파란 강조를 사용하고 단백질 표시는 초록색으로 구분한다", async ({
+  page,
+}) => {
+  await page.clock.setFixedTime(new Date("2026-08-13T12:00:00+09:00"));
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/");
+
+  const todayCard = page.locator("#today-section");
+  const todayRepresentativeItems = todayCard.locator(
+    ".today-menu-list .is-representative-item",
+  );
+
+  await expect(todayRepresentativeItems).toHaveCount(2);
+
+  for (const menuName of ["계란말이", "춘권튀김"]) {
+    const representativeItem = todayCard
+      .locator(".today-menu-list li")
+      .filter({ hasText: menuName });
+
+    await expect(representativeItem).toHaveClass(/is-representative-item/);
+    await expect(
+      representativeItem.getByText("메인", { exact: true }),
+    ).toBeVisible();
+    await expect(representativeItem).toHaveCSS("color", "rgb(0, 74, 198)");
+  }
+
+  const proteinRepresentativeItem = todayCard
+    .locator(".today-menu-list li")
+    .filter({ hasText: "계란말이" });
+
+  await expect(proteinRepresentativeItem).toHaveClass(/is-protein-item/);
+  await expect(
+    proteinRepresentativeItem.locator(".menu-item-marker"),
+  ).toHaveCSS("background-color", "rgb(28, 110, 73)");
+
+  const weeklyThursdayCard = page.locator("#meal-2026-08-13");
+  await expect(
+    weeklyThursdayCard.locator(".weekly-menu-list .is-representative-item"),
+  ).toHaveCount(2);
+  await expect(
+    weeklyThursdayCard.getByText("메인", { exact: true }),
+  ).toHaveCount(2);
+
+  const overflowPixels = await page.evaluate(() => {
+    const root = document.documentElement;
+    return Math.max(root.scrollWidth, document.body.scrollWidth) - root.clientWidth;
+  });
+
+  expect(overflowPixels).toBeLessThanOrEqual(1);
 });
 
 test("검증된 현재 주 식단 navigator는 월~금 날짜 target과 click 이동을 제공한다", async ({
@@ -191,13 +253,13 @@ test("검증된 현재 주 식단 navigator는 스크롤 위치를 반영한다"
   await page.goto("/");
 
   const mealNav = page.getByRole("navigation", { name: "식단 바로가기" });
-  const tuesdayLink = mealNav.locator('a[href="#meal-2026-08-11"]');
+  const thursdayLink = mealNav.locator('a[href="#meal-2026-08-13"]');
 
-  await page.locator("#meal-2026-08-11").evaluate((mealCard) => {
+  await page.locator("#meal-2026-08-13").evaluate((mealCard) => {
     mealCard.scrollIntoView({ block: "center" });
   });
 
-  await expect(tuesdayLink).toHaveAttribute("aria-current", "location");
+  await expect(thursdayLink).toHaveAttribute("aria-current", "location");
   await expect(mealNav.locator('a[aria-current="location"]')).toHaveCount(1);
 
   const overflowPixels = await page.evaluate(() => {

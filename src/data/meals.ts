@@ -14,6 +14,8 @@ export interface MealOption {
   /** 사진에서 코너명이 확인되지 않으면 위치를 기준으로 임시 표시 */
   label: string;
   menuItems: string[];
+  /** 사진에서 대표 음식이 확인된 경우 같은 option의 menuItems 값, 미확인 시 null */
+  representativeMenuItem: string | null;
 }
 
 export interface DailyMeal {
@@ -44,11 +46,12 @@ export interface WeeklyMeal {
  */
 export const weeklyMeal: WeeklyMeal = {
   weekStart: "2026-08-10",
-  updatedAt: "2026-08-13T11:57:57+09:00",
-  status: "DATE_UNVERIFIED",
+  updatedAt: "2026-08-14T11:50:46+09:00",
+  status: "DATE_VERIFIED",
   sourceNotes: [
-    "사진에서 날짜 머리글을 확인할 수 없어 배열 순서 보존용으로 2026년 8월 10일부터 14일까지의 임시 날짜를 사용했습니다. 화면에서는 특정 요일 식단으로 표시하지 않습니다.",
+    "제공자가 이 사진이 2026년 8월 10일부터 14일까지의 주간 식단표임을 확인했습니다.",
     "상단·하단 블록의 코너명이 잘려 있어 같은 날의 메뉴 1·메뉴 2로 표시했습니다.",
+    "제공자가 8월 13일 메뉴 2의 돼지갈비솥밥과 8월 14일 대표 메뉴 구성을 확인했습니다.",
   ],
   meals: [
     {
@@ -58,6 +61,7 @@ export const weeklyMeal: WeeklyMeal = {
         {
           label: "메뉴 1 · 사진 상단",
           menuItems: ["흰쌀밥", "두부찜", "오이고추&쌈장", "깍두기"],
+          representativeMenuItem: null,
         },
         {
           label: "메뉴 2 · 사진 하단",
@@ -69,6 +73,7 @@ export const weeklyMeal: WeeklyMeal = {
             "콘치커리샐러드",
             "포기김치",
           ],
+          representativeMenuItem: "돈육낙지덮밥",
         },
       ],
       uncertainTexts: [
@@ -88,10 +93,12 @@ export const weeklyMeal: WeeklyMeal = {
             "가지나물",
             "포기김치",
           ],
+          representativeMenuItem: null,
         },
         {
           label: "메뉴 2 · 사진 하단",
           menuItems: ["후리가케밥", "포기김치"],
+          representativeMenuItem: null,
         },
       ],
       uncertainTexts: [
@@ -114,6 +121,7 @@ export const weeklyMeal: WeeklyMeal = {
             "콩나물무침",
             "포기김치",
           ],
+          representativeMenuItem: "돈육간장불고기",
         },
         {
           label: "메뉴 2 · 사진 하단",
@@ -123,6 +131,7 @@ export const weeklyMeal: WeeklyMeal = {
             "콩나물무침",
             "포기김치",
           ],
+          representativeMenuItem: "치킨마요덮밥",
         },
       ],
       uncertainTexts: [
@@ -136,16 +145,23 @@ export const weeklyMeal: WeeklyMeal = {
         {
           label: "메뉴 1 · 사진 상단",
           menuItems: ["흰쌀밥", "계란말이", "오징어실채볶음", "깍두기"],
+          representativeMenuItem: null,
         },
         {
           label: "메뉴 2 · 사진 하단",
-          menuItems: ["콩나물국", "춘권튀김", "단무지", "깍두기"],
+          menuItems: [
+            "돼지갈비솥밥",
+            "콩나물국",
+            "춘권튀김",
+            "단무지",
+            "깍두기",
+          ],
+          representativeMenuItem: "돼지갈비솥밥",
         },
       ],
       uncertainTexts: [
         "메뉴 1의 국 또는 찌개 이름은 사진에서 확인하지 못했습니다.",
         "두 메뉴에 ‘프로틴연두부무침’으로 보이는 항목이 있으나 확실하지 않습니다.",
-        "메뉴 2의 주메뉴는 ‘대패삼겹덮밥’으로 보이지만 확실하지 않습니다.",
       ],
     },
     {
@@ -162,17 +178,18 @@ export const weeklyMeal: WeeklyMeal = {
             "고추지양파절임",
             "깍두기",
           ],
+          representativeMenuItem: "우거지해장국",
         },
         {
           label: "메뉴 2 · 사진 하단",
           menuItems: [
             "삼색온도토리묵국수",
             "멸치온육수",
-            "돼지갈비솥밥",
             "비빔고추장",
             "고추냉이김",
             "포기김치",
           ],
+          representativeMenuItem: "삼색온도토리묵국수",
         },
       ],
       uncertainTexts: [],

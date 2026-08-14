@@ -25,6 +25,7 @@ test("룰렛 선택을 저장하고 새로고침 후 복원·공유·취소한�
     });
   });
   await page.goto("/");
+  await expect(page.getByText(/사진 상단|사진 하단/)).toHaveCount(0);
 
   await page.getByRole("button", { name: "룰렛 열기" }).click();
   await expect(
@@ -37,7 +38,8 @@ test("룰렛 선택을 저장하고 새로고침 후 복원·공유·취소한�
 
   const decisionPanel = page.getByLabel("저장된 오늘의 메뉴 선택");
   await expect(decisionPanel).toContainText("오늘의 픽");
-  await expect(decisionPanel).toContainText("메뉴 A · 메뉴 1 · 사진 상단");
+  await expect(decisionPanel).toContainText("메뉴 A");
+  await expect(decisionPanel).not.toContainText("사진 상단");
   await expect(page.locator(".today-menu-group--selected")).toContainText(
     "오늘의 픽",
   );
@@ -48,7 +50,8 @@ test("룰렛 선택을 저장하고 새로고침 후 복원·공유·취소한�
   ).toBeFocused();
   await page.reload();
 
-  await expect(decisionPanel).toContainText("메뉴 A · 메뉴 1 · 사진 상단");
+  await expect(decisionPanel).toContainText("메뉴 A");
+  await expect(decisionPanel).not.toContainText("사진 상단");
   await expect(page.locator("#meal-roulette-dialog")).toHaveCount(0);
 
   await page.getByRole("button", { name: "다시 고르기" }).click();
@@ -117,12 +120,15 @@ test("회전 중 닫으면 완료 타이머를 취소하고 기존 선택을 유
   await page.getByRole("button", { name: "룰렛 닫기" }).click();
   await expect(page.locator("#meal-roulette-dialog")).toHaveCount(0);
   await expect(page.getByLabel("저장된 오늘의 메뉴 선택")).toContainText(
-    "메뉴 A · 메뉴 1 · 사진 상단",
+    "메뉴 A",
+  );
+  await expect(page.getByLabel("저장된 오늘의 메뉴 선택")).not.toContainText(
+    "사진 상단",
   );
   await page.clock.runFor(1_900);
 
   await expect(page.getByLabel("저장된 오늘의 메뉴 선택")).toContainText(
-    "메뉴 A · 메뉴 1 · 사진 상단",
+    "메뉴 A",
   );
 });
 

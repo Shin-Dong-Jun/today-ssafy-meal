@@ -38,7 +38,7 @@ export function WeeklyMeals({
                   : "이번 주 식단"
               : dataStatus === "SAMPLE"
                 ? "화면 예시 식단"
-                : "사진에서 읽은 메뉴"}
+                : "월~금 식단"}
           </h2>
         </div>
         <p>
@@ -46,7 +46,7 @@ export function WeeklyMeals({
             ? `평일 ${meals.length}일`
             : dataStatus === "SAMPLE"
               ? `예시 ${meals.length}개`
-              : `메뉴 묶음 ${meals.length}개`}
+              : `평일 ${meals.length}일`}
         </p>
       </div>
 

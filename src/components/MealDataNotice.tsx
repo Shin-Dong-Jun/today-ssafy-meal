@@ -23,7 +23,7 @@ const STATUS_LABELS: Record<MealDataStatus, string> = {
 const STATUS_MESSAGES: Record<MealDataStatus, string> = {
   DATE_VERIFIED: "식단표의 실제 날짜를 확인했어요.",
   DATE_UNVERIFIED:
-    "날짜는 확인하지 못했어요. 사진에서 읽은 메뉴만 순서대로 보여드려요.",
+    "식단표의 월~금 요일 순서는 확인했지만, 각 요일의 날짜 숫자는 확인하지 못했어요.",
   SAMPLE: "실제 SSAFY 식단이 아닌 화면 확인용 예시예요.",
 };
 
@@ -100,23 +100,6 @@ export function MealDataNotice({
         </div>
       </dl>
 
-      {weeklyMeal.sourceNotes.length > 0 && (
-        <details className="meal-data-source-notes">
-          <summary>
-            {status === "DATE_UNVERIFIED"
-              ? "날짜·판독 근거"
-              : status === "SAMPLE"
-                ? "예시 및 출처 안내"
-                : "판독 및 출처 안내"}{" "}
-            {weeklyMeal.sourceNotes.length}개
-          </summary>
-          <ul>
-            {weeklyMeal.sourceNotes.map((note, index) => (
-              <li key={`${index}-${note}`}>{note}</li>
-            ))}
-          </ul>
-        </details>
-      )}
     </aside>
   );
 }

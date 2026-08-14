@@ -4,7 +4,6 @@ import {
   type MealDataStatus,
 } from "../data/meals";
 import { DAY_OF_WEEK_LABELS } from "../utils/date";
-import { MealUncertaintyDetails } from "./MealUncertaintyDetails";
 
 interface MealCardProps {
   meal: DailyMeal;
@@ -48,9 +47,14 @@ export function MealCard({
               </span>
             </time>
           ) : (
-            <span className="meal-weekday">
-              {isSample ? "예시" : "식단"} {mealIndex + 1}
-            </span>
+            <>
+              <span className="meal-weekday">
+                {isSample ? `예시 ${mealIndex + 1}` : dayLabel}
+              </span>
+              {!isSample && (
+                <span className="visually-hidden"> 메뉴, 날짜 숫자 미확인</span>
+              )}
+            </>
           )}
         </h3>
         {shouldMarkToday && <span className="card-today-label">오늘</span>}
@@ -59,13 +63,39 @@ export function MealCard({
       <div className="meal-card-body">
         {menuItems.length > 0 ? (
           <div className="weekly-menu-groups">
-            {meal.mealOptions.map((option) => (
-              <section className="weekly-menu-group" key={option.label}>
-                <h4>{option.label}</h4>
+            {meal.mealOptions.map((option, optionIndex) => (
+              <section
+                className="weekly-menu-group"
+                key={option.label}
+                aria-label={`메뉴 ${String.fromCharCode(65 + optionIndex)}`}
+              >
                 <ul className="weekly-menu-list">
-                  {option.menuItems.map((item, itemIndex) => (
-                    <li key={`${option.label}-${itemIndex}`}>{item}</li>
-                  ))}
+                  {option.menuItems.map((item, itemIndex) => {
+                    const isRepresentativeItem =
+                      item === option.representativeMenuItem;
+
+                    return (
+                      <li
+                        className={
+                          isRepresentativeItem
+                            ? "is-representative-item"
+                            : undefined
+                        }
+                        key={`${option.label}-${itemIndex}`}
+                      >
+                        <span
+                          className="menu-item-marker"
+                          aria-hidden="true"
+                        />
+                        <span className="menu-item-copy">
+                          {isRepresentativeItem && (
+                            <span className="main-menu-badge">메인</span>
+                          )}
+                          <span className="menu-item-text">{item}</span>
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             ))}
@@ -74,7 +104,6 @@ export function MealCard({
           <p className="meal-empty">등록된 식단이 없어요</p>
         )}
 
-        <MealUncertaintyDetails texts={meal.uncertainTexts} />
       </div>
     </article>
   );

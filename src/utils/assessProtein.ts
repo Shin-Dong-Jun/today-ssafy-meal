@@ -29,17 +29,13 @@ export const PROTEIN_KEYWORDS = [
   "요거트",
 ] as const;
 
-export type ProteinAssessmentStatus =
-  | "FOUND"
-  | "POSSIBLE"
-  | "NOT_FOUND";
+export type ProteinAssessmentStatus = "FOUND" | "NOT_FOUND";
 
 export const PROTEIN_STATUS_LABELS: Record<
   ProteinAssessmentStatus,
   string
 > = {
   FOUND: "관련 키워드 확인",
-  POSSIBLE: "불확실 문구에서 관련 키워드 확인",
   NOT_FOUND: "관련 키워드 미확인",
 };
 
@@ -47,7 +43,6 @@ export interface ProteinAssessment {
   status: ProteinAssessmentStatus;
   label: string;
   matchedMenuItems: string[];
-  possibleMenuItems: string[];
 }
 
 const includesProteinKeyword = (text: string) => {
@@ -73,27 +68,17 @@ const findMatches = (items: readonly string[]) =>
 /**
  * 메뉴명에서 미리 정의한 관련 키워드의 존재만 확인합니다.
  * 영양 성분이나 실제 재료, 제공량은 추론하지 않습니다.
- * 확정 메뉴에서 키워드를 찾으면 FOUND, 읽기 불확실한 텍스트에서만 찾으면
- * POSSIBLE, 어느 쪽에서도 찾지 못하면 NOT_FOUND를 반환합니다.
+ * 확정 메뉴에서 키워드를 찾으면 FOUND, 찾지 못하면 NOT_FOUND를 반환합니다.
  */
-export function assessProtein(
-  menuItems: readonly string[],
-  uncertainTexts: readonly string[] = [],
-): ProteinAssessment {
+export function assessProtein(menuItems: readonly string[]): ProteinAssessment {
   const matchedMenuItems = findMatches(menuItems);
-  const possibleMenuItems = findMatches(uncertainTexts);
 
   const status: ProteinAssessmentStatus =
-    matchedMenuItems.length > 0
-      ? "FOUND"
-      : possibleMenuItems.length > 0
-        ? "POSSIBLE"
-        : "NOT_FOUND";
+    matchedMenuItems.length > 0 ? "FOUND" : "NOT_FOUND";
 
   return {
     status,
     label: PROTEIN_STATUS_LABELS[status],
     matchedMenuItems,
-    possibleMenuItems,
   };
 }

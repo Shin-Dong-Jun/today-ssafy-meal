@@ -29,12 +29,20 @@ export function buildMealNavigatorModel(
       };
   const mealItems = weekdayMeals.map((meal, index) => {
     if (!isDateVerified) {
+      if (mealData.status === "SAMPLE") {
+        return {
+          targetId: `meal-slot-${index + 1}`,
+          label: `예시 ${index + 1}`,
+        };
+      }
+
+      const weekday = DAY_OF_WEEK_LABELS[meal.dayOfWeek];
+
       return {
         targetId: `meal-slot-${index + 1}`,
-        label:
-          mealData.status === "SAMPLE"
-            ? `예시 ${index + 1}`
-            : `식단 ${index + 1}`,
+        label: weekday.slice(0, 1),
+        desktopLabel: weekday,
+        accessibleLabel: `${weekday} 메뉴, 날짜 숫자 미확인`,
       };
     }
 
@@ -59,6 +67,6 @@ export function buildMealNavigatorModel(
           : "식단 바로가기"
       : mealData.status === "SAMPLE"
         ? "예시 식단 바로가기"
-        : "사진 순서 바로가기",
+        : "요일별 메뉴 바로가기",
   };
 }

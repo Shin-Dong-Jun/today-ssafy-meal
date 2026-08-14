@@ -5,7 +5,7 @@ export const e2eUnverifiedMeal: WeeklyMeal = {
   ...e2eVerifiedMeal,
   status: "DATE_UNVERIFIED",
   sourceNotes: [
-    "테스트 식단표에서 날짜 머리글을 확인할 수 없어 사진 순서만 검증합니다.",
+    "테스트 식단표의 월요일부터 금요일까지 열 순서는 확인했지만 실제 날짜 숫자는 확인하지 못했습니다.",
     "테스트 식단표의 코너명이 잘려 있어 메뉴 1과 메뉴 2로 표시합니다.",
   ],
   meals: e2eVerifiedMeal.meals.map((meal, index) => ({

@@ -47,16 +47,7 @@ describe("assessProtein", () => {
     expect(result).toMatchObject({
       status: "NOT_FOUND",
       matchedMenuItems: [],
-      possibleMenuItems: [],
     });
-  });
-
-  it("불확실한 텍스트에서만 키워드를 찾으면 가능성으로 표시한다", () => {
-    const result = assessProtein(["쌀밥"], ["닭 또는 오리로 보이는 구이"]);
-
-    expect(result.status).toBe("POSSIBLE");
-    expect(result.label).toBe("불확실 문구에서 관련 키워드 확인");
-    expect(result.possibleMenuItems).toEqual(["닭 또는 오리로 보이는 구이"]);
   });
 
   it("확정 메뉴에서 키워드를 찾았다는 사실만 표시한다", () => {
@@ -65,7 +56,6 @@ describe("assessProtein", () => {
     expect(result.label).toBe("관련 키워드 확인");
     expect(PROTEIN_STATUS_LABELS).toEqual({
       FOUND: "관련 키워드 확인",
-      POSSIBLE: "불확실 문구에서 관련 키워드 확인",
       NOT_FOUND: "관련 키워드 미확인",
     });
   });

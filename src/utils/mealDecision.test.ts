@@ -17,10 +17,12 @@ const meal: DailyMeal = {
     {
       label: "메뉴 1 · 사진 상단",
       menuItems: ["흰쌀밥", "계란말이"],
+      representativeMenuItem: null,
     },
     {
       label: "메뉴 2 · 사진 하단",
       menuItems: ["콩나물국", "춘권튀김"],
+      representativeMenuItem: null,
     },
   ],
   uncertainTexts: [],
@@ -146,16 +148,17 @@ describe("식단 선택 저장 데이터", () => {
 });
 
 describe("식단 선택 공유 문구", () => {
-  it("선택한 날짜, A/B 표기, label과 실제 메뉴만 포함한다", () => {
+  it("선택한 날짜, A/B 표기와 실제 메뉴만 포함한다", () => {
     expect(buildMealDecisionShareText(meal, 1)).toBe(
       [
         "오늘 싸피밥 · 8월 13일",
-        "메뉴 B · 메뉴 2 · 사진 하단",
+        "메뉴 B",
         "콩나물국, 춘권튀김",
         "#오늘싸피밥",
       ].join("\n"),
     );
     expect(buildMealDecisionShareText(meal, 1)).not.toContain("계란말이");
+    expect(buildMealDecisionShareText(meal, 1)).not.toContain("사진 하단");
   });
 
   it("존재하지 않는 선택지는 공유하지 않는다", () => {
