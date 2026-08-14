@@ -56,6 +56,10 @@ npm run test:e2e
 
 빌드 결과물은 `dist/`에 생성됩니다.
 Pull Request와 `main` Push에서는 GitHub Actions가 위 검사를 자동 실행합니다.
+브라우저 회귀 테스트는 실제 production build의 상태 독립 smoke 검사와
+`DATE_VERIFIED`·`DATE_UNVERIFIED`·`SAMPLE` 고정 fixture 기반 시나리오를
+분리합니다.
+따라서 매주 바뀌는 운영 식단 내용이 상태별 UX 테스트의 전제가 되지 않습니다.
 
 ## 동적 사용자 경험
 
@@ -72,7 +76,9 @@ Pull Request와 `main` Push에서는 GitHub Actions가 위 검사를 자동 실�
 
 ## 매주 식단 데이터 갱신
 
-식단 데이터는 [`src/data/meals.ts`](src/data/meals.ts) 한 곳에서 관리합니다.
+운영 식단 데이터는 [`src/data/meals.ts`](src/data/meals.ts) 한 곳에서 관리합니다.
+`src/data/fixtures/`의 데이터는 상태별 UX 계약을 검증하는 테스트 전용 입력이며,
+매주 식단을 갱신할 때 함께 수정하지 않습니다.
 
 1. 해당 주의 A4 식단표 사진을 코드 수정 요청과 함께 첨부합니다.
 2. 사진에서 **확실하게 읽히는 내용만** `src/data/meals.ts`에 반영합니다.

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { e2eSampleMeal } from "../data/fixtures/e2eSampleMeal";
+import { e2eUnverifiedMeal } from "../data/fixtures/e2eUnverifiedMeal";
 import { e2eVerifiedMeal } from "../data/fixtures/e2eVerifiedMeal";
-import { weeklyMeal, type WeeklyMeal } from "../data/meals";
+import type { WeeklyMeal } from "../data/meals";
 import { buildWeekdayMealSlots } from "../utils/date";
 import { buildMealNavigatorModel } from "./mealNavigatorModel";
 
@@ -18,7 +20,7 @@ function buildModel(
 
 describe("buildMealNavigatorModel", () => {
   it("날짜 미확인 식단은 안내와 사진 순서 target만 만든다", () => {
-    const model = buildModel(weeklyMeal, "CURRENT");
+    const model = buildModel(e2eUnverifiedMeal, "CURRENT");
 
     expect(model.ariaLabel).toBe("사진 순서 바로가기");
     expect(model.items.map(({ targetId, label }) => ({ targetId, label }))).toEqual([
@@ -32,8 +34,7 @@ describe("buildMealNavigatorModel", () => {
   });
 
   it("샘플 식단은 실제 식단과 구분되는 이름과 target을 만든다", () => {
-    const sampleMeal: WeeklyMeal = { ...weeklyMeal, status: "SAMPLE" };
-    const model = buildModel(sampleMeal, "CURRENT");
+    const model = buildModel(e2eSampleMeal, "CURRENT");
 
     expect(model.ariaLabel).toBe("예시 식단 바로가기");
     expect(model.items.map(({ targetId, label }) => ({ targetId, label }))).toEqual([
