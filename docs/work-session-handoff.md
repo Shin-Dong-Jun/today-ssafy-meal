@@ -13,13 +13,14 @@
 - 운영 사이트: <https://ssafy-daejeon-meal.netlify.app/>
 - 원격 기능 기준선: `83c130d` (`feat: refine weekly meal trust and menu hierarchy`, PR #14)
 - 테스트 격리 기준선: `27eeebf` (`test: decouple E2E scenarios from production meal data`, PR #13)
-- 기준선 CI: [GitHub Actions run 31770604809](https://github.com/Shin-Dong-Jun/today-ssafy-meal/actions/runs/31770604809) 성공
-- 인수인계 문서와 Node 24 호환성 수정: PR #15
-- 배포 주의: 2026-08-14 재감사 때 Netlify production이 `27eeebf`에 머물고
-  `83c130d` 배포 기록은 없었다. PR #15 마무리 조건은 최종 `origin/main`과
-  production deploy SHA가 정확히 일치하는지 재확인하는 것이다.
+- 1차 인수인계 기준선: `a5d8b87` (PR #15),
+  [GitHub Actions run 31789898103](https://github.com/Shin-Dong-Jun/today-ssafy-meal/actions/runs/31789898103) 성공
+- 배포 복구 기록: 2026-08-14에 Netlify 프로젝트가 비활성화되어 운영 URL이
+  404이고 PR #14~#15 자동 배포가 누락된 것을 확인했다. 프로젝트를 다시
+  활성화한 뒤 `a5d8b87`을 production deploy `6a7ee67287b913616070aa99`로
+  배포했고 `ready`, HTTP 200, 실제 오늘 식단 렌더링까지 확인했다.
 
-PR #15가 병합되면 `main` SHA는 위 기능 기준선보다 새로워진다. 고정 SHA로
+후속 문서 수정이 병합되면 `main` SHA는 위 기준선보다 새로워진다. 고정 SHA로
 되돌아가지 말고 아래 안전 재개 절차로 최신 `origin/main`을 받는다.
 
 ## 2. 프로젝트와 현재 운영 상태
@@ -312,6 +313,13 @@ HTTP 200은 사이트 접근만 증명한다. 배포 완료는 Netlify Deploy �
 `Published` 또는 `ready`이고, 배포 commit SHA가 `git rev-parse origin/main`과
 같은지 대시보드 접근 권한이 있는 계정으로 별도 확인한다. Netlify 상세에 접근할
 수 없다면 “HTTP 200 확인, 최종 SHA 미검증”으로 사실 그대로 인수인계한다.
+
+운영 URL이 갑자기 404이고 최신 GitHub commit의 deploy 기록도 없다면 Netlify의
+`Project configuration → General → Danger zone → Project availability`를 먼저
+확인한다. `disabled`라면 프로젝트를 활성화하고 Deploys 화면에서
+`Trigger deploy → Deploy project without cache`를 실행한다. 이후 위 기준대로
+production branch, exact commit SHA, `ready`, HTTP 200, 실제 핵심 화면을 모두
+확인한다. 원인을 확인하지 않은 채 저장소 코드나 도메인 설정부터 바꾸지 않는다.
 
 ## 8. 교육장 PC 보안과 장애 대응
 
