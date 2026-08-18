@@ -45,154 +45,150 @@ export interface WeeklyMeal {
  * 흐릿한 글자는 menuItems에 추측해 넣지 않고 uncertainTexts에 기록합니다.
  */
 export const weeklyMeal: WeeklyMeal = {
-  weekStart: "2026-08-10",
-  updatedAt: "2026-08-14T11:50:46+09:00",
+  weekStart: "2026-08-17",
+  updatedAt: "2026-08-18T12:59:36+09:00",
   status: "DATE_VERIFIED",
   sourceNotes: [
-    "제공자가 이 사진이 2026년 8월 10일부터 14일까지의 주간 식단표임을 확인했습니다.",
-    "상단·하단 블록의 코너명이 잘려 있어 같은 날의 메뉴 1·메뉴 2로 표시했습니다.",
-    "제공자가 8월 13일 메뉴 2의 돼지갈비솥밥과 8월 14일 대표 메뉴 구성을 확인했습니다.",
+    "제공자가 이번 주 식단 사진으로 전달했으며, 사진에서 8월 18일(화)부터 21일(금)까지의 날짜를 확인했습니다.",
+    "사진에 연도는 없지만 제공 시점의 이번 주 일정과 요일 조합이 일치해 2026년 8월 17일부터 21일까지의 식단으로 기록했습니다.",
+    "8월 17일(월) 열은 사진 촬영 범위 밖이라 메뉴를 등록하지 않았습니다.",
+    "점심 A/B 블록만 반영했으며 인원 수와 공통 제공란, 조식·석식은 제외했습니다.",
   ],
   meals: [
     {
-      date: "2026-08-10",
+      date: "2026-08-17",
       dayOfWeek: "MONDAY",
-      mealOptions: [
-        {
-          label: "메뉴 1 · 사진 상단",
-          menuItems: ["흰쌀밥", "두부찜", "오이고추&쌈장", "깍두기"],
-          representativeMenuItem: null,
-        },
-        {
-          label: "메뉴 2 · 사진 하단",
-          menuItems: [
-            "돈육낙지덮밥",
-            "계란국",
-            "불만두강정",
-            "오이고추&쌈장",
-            "콘치커리샐러드",
-            "포기김치",
-          ],
-          representativeMenuItem: "돈육낙지덮밥",
-        },
-      ],
+      mealOptions: [],
       uncertainTexts: [
-        "메뉴 1의 국은 ‘뚝배기설렁탕’으로 보이지만 확실하지 않습니다.",
-        "메뉴 1의 볶음 메뉴 한 가지는 글자가 흐려 확인하지 못했습니다.",
+        "8월 17일(월) 열은 제공된 사진에 포함되지 않아 점심 A/B 메뉴를 확인할 수 없습니다.",
       ],
     },
     {
-      date: "2026-08-11",
+      date: "2026-08-18",
       dayOfWeek: "TUESDAY",
       mealOptions: [
         {
-          label: "메뉴 1 · 사진 상단",
-          menuItems: [
-            "흰쌀밥",
-            "연근흑임자샐러드",
-            "가지나물",
-            "포기김치",
-          ],
-          representativeMenuItem: null,
-        },
-        {
-          label: "메뉴 2 · 사진 하단",
-          menuItems: ["후리가케밥", "포기김치"],
-          representativeMenuItem: null,
-        },
-      ],
-      uncertainTexts: [
-        "메뉴 1의 주메뉴는 ‘순살닭갈비’로 보이지만 확실하지 않습니다.",
-        "메뉴 1의 감자 메뉴 한 가지는 정확한 조리명을 확인하지 못했습니다.",
-        "메뉴 2에는 함박스테이크, 우동국, 토마토스파게티, 오이무침으로 보이는 항목이 있으나 글자가 흐립니다.",
-      ],
-    },
-    {
-      date: "2026-08-12",
-      dayOfWeek: "WEDNESDAY",
-      mealOptions: [
-        {
-          label: "메뉴 1 · 사진 상단",
-          menuItems: [
-            "흰쌀밥",
-            "들깨미역국",
-            "돈육간장불고기",
-            "계란찜",
-            "콩나물무침",
-            "포기김치",
-          ],
-          representativeMenuItem: "돈육간장불고기",
-        },
-        {
-          label: "메뉴 2 · 사진 하단",
-          menuItems: [
-            "치킨마요덮밥",
-            "들깨미역국",
-            "콩나물무침",
-            "포기김치",
-          ],
-          representativeMenuItem: "치킨마요덮밥",
-        },
-      ],
-      uncertainTexts: [
-        "메뉴 2에 ‘계란장조림’, ‘허니버터감자’로 보이는 항목이 있으나 확실하지 않습니다.",
-      ],
-    },
-    {
-      date: "2026-08-13",
-      dayOfWeek: "THURSDAY",
-      mealOptions: [
-        {
-          label: "메뉴 1 · 사진 상단",
-          menuItems: ["흰쌀밥", "계란말이", "오징어실채볶음", "깍두기"],
-          representativeMenuItem: null,
-        },
-        {
-          label: "메뉴 2 · 사진 하단",
-          menuItems: [
-            "돼지갈비솥밥",
-            "콩나물국",
-            "춘권튀김",
-            "단무지",
-            "깍두기",
-          ],
-          representativeMenuItem: "돼지갈비솥밥",
-        },
-      ],
-      uncertainTexts: [
-        "메뉴 1의 국 또는 찌개 이름은 사진에서 확인하지 못했습니다.",
-        "두 메뉴에 ‘프로틴연두부무침’으로 보이는 항목이 있으나 확실하지 않습니다.",
-      ],
-    },
-    {
-      date: "2026-08-14",
-      dayOfWeek: "FRIDAY",
-      mealOptions: [
-        {
-          label: "메뉴 1 · 사진 상단",
+          label: "중식 A",
           menuItems: [
             "잡곡밥",
-            "우거지해장국",
-            "녹두전",
-            "채소반찬",
-            "고추지양파절임",
-            "깍두기",
-          ],
-          representativeMenuItem: "우거지해장국",
-        },
-        {
-          label: "메뉴 2 · 사진 하단",
-          menuItems: [
-            "삼색온도토리묵국수",
-            "멸치온육수",
-            "비빔고추장",
-            "고추냉이김",
+            "바지락된장국",
+            "돈육고추장볶음",
+            "어묵깻잎전",
+            "청포묵무침",
             "포기김치",
           ],
-          representativeMenuItem: "삼색온도토리묵국수",
+          representativeMenuItem: null,
+        },
+        {
+          label: "중식 B",
+          menuItems: [
+            "(뚝)날치알밥",
+            "덴가스국",
+            "라구파스타",
+            "고구마샐러드",
+            "오이피클",
+            "깍두기",
+          ],
+          representativeMenuItem: null,
         },
       ],
       uncertainTexts: [],
+    },
+    {
+      date: "2026-08-19",
+      dayOfWeek: "WEDNESDAY",
+      mealOptions: [
+        {
+          label: "중식 A",
+          menuItems: [
+            "잡곡밥",
+            "(뚝)설렁탕",
+            "오징어숙회무침",
+            "생선커틀렛",
+            "파래무침",
+            "깍두기",
+          ],
+          representativeMenuItem: null,
+        },
+        {
+          label: "중식 B",
+          menuItems: [
+            "베이컨갈릭볶음밥",
+            "꼬치어묵국",
+            "식빵피자토스트",
+            "연두부찜",
+            "실곤약초장무침",
+            "포기김치",
+          ],
+          representativeMenuItem: null,
+        },
+      ],
+      uncertainTexts: [],
+    },
+    {
+      date: "2026-08-20",
+      dayOfWeek: "THURSDAY",
+      mealOptions: [
+        {
+          label: "중식 A",
+          menuItems: [
+            "잡곡밥",
+            "제주식고사리해장국",
+            "너비아니구이",
+            "메추리알맵조림",
+            "느타리버섯볶음",
+            "깍두기",
+          ],
+          representativeMenuItem: null,
+        },
+        {
+          label: "중식 B",
+          menuItems: [
+            "중화덮밥&후라이",
+            "계란국",
+            "자장라면",
+            "느타리버섯볶음",
+            "단무지",
+            "포기김치",
+          ],
+          representativeMenuItem: null,
+        },
+      ],
+      uncertainTexts: [
+        "중식 A의 제주식고사리해장국 앞 괄호 표기는 판독이 엇갈려 메뉴명에서 제외했습니다.",
+      ],
+    },
+    {
+      date: "2026-08-21",
+      dayOfWeek: "FRIDAY",
+      mealOptions: [
+        {
+          label: "중식 A",
+          menuItems: [
+            "잡곡밥",
+            "(뚝)얼큰만두전골",
+            "두부탕수",
+            "진미채채소무침",
+            "오이탕탕이",
+            "깍두기",
+          ],
+          representativeMenuItem: null,
+        },
+        {
+          label: "중식 B",
+          menuItems: [
+            "잔치국수",
+            "미니보쌈&무생채",
+            "김가루양념밥",
+            "오이탕탕이",
+            "배추겉절이김치",
+          ],
+          representativeMenuItem: null,
+        },
+      ],
+      uncertainTexts: [
+        "중식 B의 ‘미니보쌈’ 다음 줄에 ‘&무생채’가 이어져 하나의 메뉴명으로 기록했습니다.",
+      ],
     },
   ],
 };
